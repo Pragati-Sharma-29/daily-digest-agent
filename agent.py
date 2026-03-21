@@ -1,59 +1,50 @@
-"""
-Daily Digest Agent — Google ADK pipeline
-Scrapes a set of sites in parallel, summarizes, and saves a Markdown digest.
-"""
-
 import os
-import requests
 import asyncio
-from bs4 import BeautifulSoup
+import feedparser
 from datetime import datetime
-from google.adk.agents import LlmAgent, SequentialAgent, ParallelAgent
+from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.tools import FunctionTool
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-# ─── Sites to scrape ──────────────────────────────────────────────────────────
-# Add or remove sites here as needed
-SITES = [
-    {"name": "TechCrunch_AI",  "url": "https://techcrunch.com/category/artificial-intelligence/"},
-    {"name": "Hacker_News",    "url": "https://news.ycombinator.com/"},
-    {"name": "The_Verge_Tech", "url": "https://www.theverge.com/tech"},
+# ─── RSS Feeds to read ────────────────────────────────────────────────────────
+RSS_FEEDS = [
+    {"name": "TechCrunch AI",  "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
+    {"name": "Hacker News",    "url": "https://news.ycombinator.com/rss"},
+    {"name": "MIT Tech Review","url": "https://www.technologyreview.com/feed/"},
+    {"name": "Wired AI",       "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
+    {"name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/"},
 ]
 
 # ─── Tools ────────────────────────────────────────────────────────────────────
 
-def fetch_site_content(site_name: str, url: str) -> str:
-    """Fetches and cleans text content from a given site URL.
-
-    Args:
-        site_name: Human-readable name of the site.
-        url: The URL to fetch content from.
+def fetch_all_rss_feeds() -> str:
+    """Fetches all RSS feeds and returns combined content as a single string.
 
     Returns:
-        Cleaned text content from the site, capped at 4000 characters.
+        Formatted string of all feed entries combined.
     """
-    try:
-        headers = {"User-Agent": "Mozilla/5.0 (compatible; DailyDigestBot/1.0)"}
-        response = requests.get(url, headers=headers, timeout=15)
-        response.raise_for_status()
+    all_content = []
 
-        soup = BeautifulSoup(response.text, "html.parser")
+    for feed_info in RSS_FEEDS:
+        try:
+            feed = feedparser.parse(feed_info["url"])
+            entries = []
+            for entry in feed.entries[:5]:  # top 5 per feed
+                title   = entry.get("title", "No title")
+                link    = entry.get("link", "")
+                summary = entry.get("summary", "")[:200]
+                entries.append(f"  - {title}\n    {link}\n    {summary}")
 
-        # Strip boilerplate tags
-        for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
-            tag.decompose()
+            section = f"[{feed_info['name']}]\n" + "\n".join(entries)
+            all_content.append(section)
+            print(f"Fetched {len(feed.entries)} entries from {feed_info['name']}")
 
-        text = soup.get_text(separator="\n", strip=True)
-        # Collapse excessive blank lines
-        lines = [l for l in text.splitlines() if l.strip()]
-        cleaned = "\n".join(lines)
+        except Exception as e:
+            all_content.append(f"[{feed_info['name']}] ERROR: {str(e)}")
 
-        return f"[{site_name}]\n{cleaned[:4000]}"
-
-    except Exception as e:
-        return f"[{site_name}] ERROR fetching {url}: {str(e)}"
+    return "\n\n".join(all_content)
 
 
 def save_digest(digest: str) -> str:
@@ -70,79 +61,56 @@ def save_digest(digest: str) -> str:
     filename = f"digests/digest_{date_str}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(digest)
-    print(f"✅ Digest saved → {filename}")
+    print(f"Digest saved to {filename}")
     return f"Digest saved to {filename}"
 
 
-# ─── Build scraper sub-agents (one per site, run in parallel) ─────────────────
+# ─── Single agent that fetches + summarizes in one step ───────────────────────
+# No parallel agents = no rate limit issues
 
-def make_scraper_agent(site: dict) -> LlmAgent:
-    return LlmAgent(
-        name=f"scraper_{site['name']}",
-        model="gemini-2.0-flash",
-        instruction=f"""
-            You are a web scraper. Your ONLY job is to fetch content from:
-            Site name : {site['name']}
-            URL       : {site['url']}
-
-            Call fetch_site_content with site_name="{site['name']}" and url="{site['url']}".
-            Store the result exactly as returned — do not summarize or modify it.
-        """,
-        tools=[FunctionTool(fetch_site_content)],
-        output_key=f"raw_{site['name']}",
-    )
-
-
-scraper_agents = [make_scraper_agent(s) for s in SITES]
-
-parallel_scraper = ParallelAgent(
-    name="parallel_scraper",
-    sub_agents=scraper_agents,
+fetcher_agent = LlmAgent(
+    name="rss_fetcher",
+    model="gemini-1.5-flash",
+    instruction="""
+        Call fetch_all_rss_feeds to get the latest news from all RSS feeds.
+        Store the raw content in session state under key 'raw_feeds'.
+    """,
+    tools=[FunctionTool(fetch_all_rss_feeds)],
+    output_key="raw_feeds",
 )
 
-# ─── Summarizer ───────────────────────────────────────────────────────────────
-
-summarizer = LlmAgent(
+summarizer_agent = LlmAgent(
     name="summarizer",
-    model="gemini-2.0-flash",
-    instruction="""
-        You are a daily tech news digest writer. Session state contains raw scraped 
-        content from multiple websites under keys like 'raw_<SiteName>'.
+    model="gemini-1.5-flash",
+    instruction=f"""
+        You are a daily tech news digest writer. Read the raw RSS feed content 
+        from session state key 'raw_feeds' and write a clean Markdown digest.
 
-        Write a clean, well-structured Markdown digest with:
-        - A top-level heading: "# Daily Tech Digest — {today's date}"
-        - One section per site (## Site Name) with 3–5 bullet-point takeaways
-        - A final "## ⭐ Top Story" section highlighting the single most important item
+        Format:
+        # Daily Tech Digest — {datetime.now().strftime('%Y-%m-%d')}
 
-        Be concise, factual, and scannable. Omit ads, navigation text, and boilerplate.
+        One ## section per feed source with 3-5 bullet point takeaways.
+        End with a ## Top Story section highlighting the single most important item.
+
+        Be concise, factual, and scannable.
     """,
     output_key="daily_digest",
 )
 
-# ─── Saver ────────────────────────────────────────────────────────────────────
-
-saver = LlmAgent(
+saver_agent = LlmAgent(
     name="saver",
-    model="gemini-2.0-flash",
-    instruction="""
-        Retrieve the value of the 'daily_digest' key from session state.
-        Pass it to save_digest to persist it to disk.
-    """,
+    model="gemini-1.5-flash",
+    instruction="Retrieve the value of 'daily_digest' from session state and save it using save_digest.",
     tools=[FunctionTool(save_digest)],
 )
 
-# ─── Root pipeline ────────────────────────────────────────────────────────────
-
+# ─── Pipeline: fetch → summarize → save (sequential, minimal API calls) ───────
 root_agent = SequentialAgent(
     name="daily_digest_pipeline",
-    sub_agents=[
-        parallel_scraper,  # Step 1: scrape all sites simultaneously
-        summarizer,        # Step 2: summarize into a digest
-        saver,             # Step 3: save to digests/digest_YYYY-MM-DD.md
-    ],
+    sub_agents=[fetcher_agent, summarizer_agent, saver_agent],
 )
 
-# ─── Runner (entry point) ─────────────────────────────────────────────────────
+# ─── Runner ───────────────────────────────────────────────────────────────────
 
 async def run():
     print(f"Starting pipeline — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
@@ -181,7 +149,6 @@ async def run():
     if final_text:
         save_digest(final_text)
     else:
-        # Try reading from session state directly
         session = await session_service.get_session(
             app_name="daily_digest",
             user_id="system",
@@ -197,3 +164,9 @@ async def run():
 
 if __name__ == "__main__":
     asyncio.run(run())
+```
+
+Also update `requirements.txt` on GitHub:
+```
+google-adk>=0.3.0
+feedparser>=6.0.0
