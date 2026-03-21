@@ -8,54 +8,39 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-# ─── RSS Feeds to read ────────────────────────────────────────────────────────
+# ─── RSS Feeds ────────────────────────────────────────────────────────────────
 RSS_FEEDS = [
-    {"name": "TechCrunch AI",  "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
-    {"name": "Hacker News",    "url": "https://news.ycombinator.com/rss"},
-    {"name": "MIT Tech Review","url": "https://www.technologyreview.com/feed/"},
-    {"name": "Wired AI",       "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
-    {"name": "VentureBeat AI", "url": "https://venturebeat.com/category/ai/feed/"},
+    {"name": "TechCrunch_AI",  "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
+    {"name": "Hacker_News",    "url": "https://news.ycombinator.com/rss"},
+    {"name": "MIT_Tech_Review","url": "https://www.technologyreview.com/feed/"},
+    {"name": "Wired_AI",       "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
+    {"name": "VentureBeat_AI", "url": "https://venturebeat.com/category/ai/feed/"},
 ]
 
 # ─── Tools ────────────────────────────────────────────────────────────────────
 
 def fetch_all_rss_feeds() -> str:
-    """Fetches all RSS feeds and returns combined content as a single string.
-
-    Returns:
-        Formatted string of all feed entries combined.
-    """
+    """Fetches all RSS feeds and returns combined content as a single string."""
     all_content = []
-
     for feed_info in RSS_FEEDS:
         try:
             feed = feedparser.parse(feed_info["url"])
             entries = []
-            for entry in feed.entries[:5]:  # top 5 per feed
+            for entry in feed.entries[:5]:
                 title   = entry.get("title", "No title")
                 link    = entry.get("link", "")
                 summary = entry.get("summary", "")[:200]
                 entries.append(f"  - {title}\n    {link}\n    {summary}")
-
             section = f"[{feed_info['name']}]\n" + "\n".join(entries)
             all_content.append(section)
             print(f"Fetched {len(feed.entries)} entries from {feed_info['name']}")
-
         except Exception as e:
             all_content.append(f"[{feed_info['name']}] ERROR: {str(e)}")
-
     return "\n\n".join(all_content)
 
 
 def save_digest(digest: str) -> str:
-    """Saves the daily digest to a Markdown file.
-
-    Args:
-        digest: The full digest text to save.
-
-    Returns:
-        Confirmation message with the filename.
-    """
+    """Saves the daily digest to a Markdown file."""
     os.makedirs("digests", exist_ok=True)
     date_str = datetime.now().strftime("%Y-%m-%d")
     filename = f"digests/digest_{date_str}.md"
@@ -65,8 +50,7 @@ def save_digest(digest: str) -> str:
     return f"Digest saved to {filename}"
 
 
-# ─── Single agent that fetches + summarizes in one step ───────────────────────
-# No parallel agents = no rate limit issues
+# ─── Agents ───────────────────────────────────────────────────────────────────
 
 fetcher_agent = LlmAgent(
     name="rss_fetcher",
@@ -82,12 +66,12 @@ fetcher_agent = LlmAgent(
 summarizer_agent = LlmAgent(
     name="summarizer",
     model="gemini-3-flash-preview",
-    instruction=f"""
-        You are a daily tech news digest writer. Read the raw RSS feed content 
+    instruction="""
+        You are a daily tech news digest writer. Read the raw RSS feed content
         from session state key 'raw_feeds' and write a clean Markdown digest.
 
         Format:
-        # Daily Tech Digest — {datetime.now().strftime('%Y-%m-%d')}
+        # Daily Tech Digest — {date}
 
         One ## section per feed source with 3-5 bullet point takeaways.
         End with a ## Top Story section highlighting the single most important item.
@@ -104,7 +88,8 @@ saver_agent = LlmAgent(
     tools=[FunctionTool(save_digest)],
 )
 
-# ─── Pipeline: fetch → summarize → save (sequential, minimal API calls) ───────
+# ─── Pipeline ─────────────────────────────────────────────────────────────────
+
 root_agent = SequentialAgent(
     name="daily_digest_pipeline",
     sub_agents=[fetcher_agent, summarizer_agent, saver_agent],
@@ -141,7 +126,6 @@ async def run():
         if event.is_final_response():
             print("Pipeline complete.")
 
-    # Read digest directly from session state
     session = await session_service.get_session(
         app_name="daily_digest",
         user_id="system",
@@ -157,31 +141,10 @@ async def run():
         save_digest(digest)
         print("Digest saved from session state.")
     elif raw_feeds:
-        # Fallback: save raw feeds if summarizer didn't run
         save_digest(f"# Daily Digest — {datetime.now().strftime('%Y-%m-%d')}\n\n{raw_feeds}")
         print("Saved raw feeds as fallback.")
     else:
         print("WARNING: No content found in session state.")
-
-
-if __name__ == "__main__":
-    asyncio.run(run())
-
-    # Save from final response
-    if final_text:
-        save_digest(final_text)
-    else:
-        session = await session_service.get_session(
-            app_name="daily_digest",
-            user_id="system",
-            session_id="daily_run",
-        )
-        digest = session.state.get("daily_digest", "")
-        if digest:
-            save_digest(digest)
-            print("Digest saved from session state.")
-        else:
-            print("WARNING: No digest content found.")
 
 
 if __name__ == "__main__":
