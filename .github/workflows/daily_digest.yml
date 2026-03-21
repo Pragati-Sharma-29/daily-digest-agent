@@ -48,3 +48,13 @@ jobs:
           git push || true
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Commit feed state to repo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add feeds_state.json || true
+          git diff --cached --quiet || git commit -m "chore: update feed health state $(date +'%Y-%m-%d')"
+          git push || true
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
