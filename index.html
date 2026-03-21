@@ -24,7 +24,6 @@
       --muted: #6b6560;
       --accent: #c8b89a;
       --accent2: #8fb8a8;
-      --danger: #c87a6a;
       --serif: 'Instrument Serif', Georgia, serif;
       --mono: 'DM Mono', monospace;
       --radius: 12px;
@@ -41,7 +40,6 @@
       overflow-x: hidden;
     }
 
-    /* ── Header ── */
     header {
       position: sticky;
       top: 0;
@@ -75,7 +73,6 @@
       gap: 8px;
     }
 
-    /* ── Date Selector ── */
     .date-select {
       background: var(--bg3);
       border: 1px solid var(--border);
@@ -90,14 +87,13 @@
       -webkit-appearance: none;
     }
 
-    /* ── Player Bar ── */
     .player-bar {
       background: var(--bg2);
       border-top: 1px solid var(--border);
       padding: 10px 20px;
       display: none;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
 
     .player-bar.visible { display: flex; }
@@ -118,12 +114,12 @@
 
     .player-btn:active { transform: scale(0.92); }
     .player-btn.playing { background: var(--accent2); }
-
     .player-btn svg { width: 16px; height: 16px; fill: #0a0a0a; }
 
     .player-info {
       flex: 1;
       overflow: hidden;
+      min-width: 0;
     }
 
     .player-section {
@@ -160,18 +156,17 @@
       border-radius: 4px;
       cursor: pointer;
       white-space: nowrap;
+      flex-shrink: 0;
     }
 
     .speed-btn:hover { color: var(--text); }
 
-    /* ── Main Content ── */
     main {
       max-width: 680px;
       margin: 0 auto;
       padding: 28px 20px 100px;
     }
 
-    /* ── Loading / Empty States ── */
     .state-box {
       text-align: center;
       padding: 60px 20px;
@@ -187,7 +182,6 @@
       opacity: 0.4;
     }
 
-    /* ── Digest ── */
     .digest-header {
       margin-bottom: 32px;
       padding-bottom: 20px;
@@ -230,7 +224,6 @@
     .listen-all-btn:hover { background: rgba(200,184,154,0.08); }
     .listen-all-btn svg { width: 12px; height: 12px; fill: var(--accent); }
 
-    /* ── Sections ── */
     .section {
       margin-bottom: 36px;
       animation: fadeUp 0.4s ease both;
@@ -282,7 +275,6 @@
     .section-listen:hover { color: var(--accent2); }
     .section-listen svg { width: 10px; height: 10px; fill: currentColor; }
 
-    /* ── Bullet Points ── */
     .bullets { list-style: none; }
 
     .bullet {
@@ -313,7 +305,6 @@
 
     .bullet a:hover { opacity: 1; text-decoration: underline; }
 
-    /* ── Top Story ── */
     .top-story {
       background: var(--bg2);
       border: 1px solid var(--border);
@@ -337,12 +328,8 @@
       color: var(--text);
     }
 
-    .top-story-text a {
-      color: var(--accent2);
-      text-decoration: none;
-    }
+    .top-story-text a { color: var(--accent2); text-decoration: none; }
 
-    /* ── Config Modal ── */
     .modal-overlay {
       position: fixed;
       inset: 0;
@@ -365,6 +352,8 @@
       padding: 24px;
       width: 100%;
       max-width: 480px;
+      max-height: 85vh;
+      overflow-y: auto;
     }
 
     .modal h2 {
@@ -375,7 +364,7 @@
       margin-bottom: 16px;
     }
 
-    .form-group { margin-bottom: 14px; }
+    .form-group { margin-bottom: 16px; }
 
     .form-label {
       display: block;
@@ -400,6 +389,20 @@
 
     .form-input:focus { border-color: var(--accent); }
 
+    input[type="range"].form-input {
+      padding: 6px 0;
+      background: transparent;
+      border: none;
+      cursor: pointer;
+      accent-color: var(--accent);
+    }
+
+    select.form-input {
+      appearance: none;
+      -webkit-appearance: none;
+      cursor: pointer;
+    }
+
     .modal-hint {
       font-size: 0.65rem;
       color: var(--muted);
@@ -418,6 +421,7 @@
       display: flex;
       gap: 8px;
       justify-content: flex-end;
+      margin-top: 8px;
     }
 
     .btn {
@@ -441,7 +445,12 @@
     .btn:hover { color: var(--text); }
     .btn-primary:hover { opacity: 0.9; }
 
-    /* ── Settings icon ── */
+    .section-divider {
+      border: none;
+      border-top: 1px solid var(--border);
+      margin: 16px 0;
+    }
+
     .icon-btn {
       background: none;
       border: 1px solid var(--border);
@@ -454,12 +463,13 @@
       justify-content: center;
       cursor: pointer;
       transition: color 0.15s;
+      font-size: 14px;
+      flex-shrink: 0;
     }
 
     .icon-btn:hover { color: var(--text); }
     .icon-btn svg { width: 14px; height: 14px; fill: currentColor; }
 
-    /* ── Scrollbar ── */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
@@ -474,11 +484,12 @@
       <select class="date-select" id="dateSelect">
         <option value="">Loading...</option>
       </select>
-      <button class="icon-btn" onclick="openConfig()" title="Settings">
+      <button class="icon-btn" onclick="openConfig()" title="Repo settings">
         <svg viewBox="0 0 16 16"><path d="M8 10a2 2 0 100-4 2 2 0 000 4zm0-6a4 4 0 110 8A4 4 0 018 4zm0-3a1 1 0 011 1v.5a5.5 5.5 0 012.83 1.17l.35-.35a1 1 0 111.41 1.41l-.35.35A5.5 5.5 0 0114 7.5H14.5a1 1 0 010 2H14a5.5 5.5 0 01-1.17 2.83l.35.35a1 1 0 11-1.41 1.41l-.35-.35A5.5 5.5 0 018.5 15v.5a1 1 0 01-2 0V15a5.5 5.5 0 01-2.83-1.17l-.35.35a1 1 0 11-1.41-1.41l.35-.35A5.5 5.5 0 012 8.5H1.5a1 1 0 010-2H2a5.5 5.5 0 011.17-2.83l-.35-.35A1 1 0 014.23 1.9l.35.35A5.5 5.5 0 017.5 1.04V.5a1 1 0 011-1z"/></svg>
       </button>
     </div>
   </div>
+
   <div class="player-bar" id="playerBar">
     <button class="player-btn" id="playPauseBtn" onclick="togglePlay()">
       <svg id="playIcon" viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg>
@@ -487,9 +498,8 @@
       <div class="player-section" id="playerSection">Ready to play</div>
       <div class="player-progress"><div class="player-progress-fill" id="progressFill"></div></div>
     </div>
-    <button class="speed-btn" onclick="cycleSpeed()">
-      <span id="speedLabel">1×</span>
-    </button>
+    <button class="speed-btn" onclick="cycleSpeed()"><span id="speedLabel">1×</span></button>
+    <button class="speed-btn" onclick="openSpeechSettings()" title="Voice settings">⚙︎</button>
     <button class="icon-btn" onclick="stopSpeech()" title="Stop">
       <svg viewBox="0 0 16 16"><rect x="2" y="2" width="12" height="12" rx="2"/></svg>
     </button>
@@ -503,13 +513,12 @@
   </div>
 </main>
 
-<!-- Config Modal -->
 <div class="modal-overlay" id="configModal">
   <div class="modal">
     <h2>Connect your repo</h2>
     <p class="modal-hint">
-      Enter your GitHub details to load digests directly from your repo.
-      Your digests should be in the <code>digests/</code> folder as
+      Enter your GitHub details to load digests from your repo.
+      Digests should be in the <code>digests/</code> folder as
       <code>digest_YYYY-MM-DD.md</code> files.
     </p>
     <div class="form-group">
@@ -531,13 +540,57 @@
   </div>
 </div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
+<div class="modal-overlay" id="speechModal">
+  <div class="modal">
+    <h2>Speech settings</h2>
+    <div class="form-group">
+      <label class="form-label">Voice</label>
+      <select class="form-input" id="voiceSelect"></select>
+    </div>
+    <hr class="section-divider">
+    <div class="form-group">
+      <label class="form-label">Speed — <span id="rateVal">1.0</span>×</label>
+      <input type="range" class="form-input" id="rateSlider"
+             min="0.5" max="2" step="0.1" value="1"
+             oninput="document.getElementById('rateVal').textContent=parseFloat(this.value).toFixed(1)">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Pitch — <span id="pitchVal">1.0</span></label>
+      <input type="range" class="form-input" id="pitchSlider"
+             min="0.5" max="2" step="0.1" value="1"
+             oninput="document.getElementById('pitchVal').textContent=parseFloat(this.value).toFixed(1)">
+    </div>
+    <div class="form-group">
+      <label class="form-label">Volume — <span id="volVal">100</span>%</label>
+      <input type="range" class="form-input" id="volSlider"
+             min="0" max="1" step="0.05" value="1"
+             oninput="document.getElementById('volVal').textContent=Math.round(this.value*100)">
+    </div>
+    <hr class="section-divider">
+    <div class="form-group">
+      <label class="form-label">Pause between sections — <span id="pauseVal">1.0</span>s</label>
+      <input type="range" class="form-input" id="pauseSlider"
+             min="0" max="5" step="0.5" value="1"
+             oninput="document.getElementById('pauseVal').textContent=parseFloat(this.value).toFixed(1)">
+    </div>
+    <div class="btn-row">
+      <button class="btn" onclick="closeSpeechSettings()">Cancel</button>
+      <button class="btn btn-primary" onclick="saveSpeechSettings()">Save</button>
+    </div>
+  </div>
+</div>
+
 <script>
-// ── Config ──────────────────────────────────────────────────────────────────
 const CONFIG_KEY = 'digest_config';
+const SPEECH_KEY = 'speech_settings';
 
 function getConfig() {
   try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; }
+  catch { return {}; }
+}
+
+function getSpeechSettings() {
+  try { return JSON.parse(localStorage.getItem(SPEECH_KEY)) || {}; }
   catch { return {}; }
 }
 
@@ -565,7 +618,79 @@ function closeConfig() {
   document.getElementById('configModal').classList.remove('open');
 }
 
-// ── GitHub API ───────────────────────────────────────────────────────────────
+function openSpeechSettings() {
+  const s = getSpeechSettings();
+  document.getElementById('rateSlider').value  = s.rate   !== undefined ? s.rate   : 1;
+  document.getElementById('pitchSlider').value = s.pitch  !== undefined ? s.pitch  : 1;
+  document.getElementById('volSlider').value   = s.volume !== undefined ? s.volume : 1;
+  document.getElementById('pauseSlider').value = s.pause  !== undefined ? s.pause  : 1;
+  document.getElementById('rateVal').textContent  = parseFloat(s.rate  || 1).toFixed(1);
+  document.getElementById('pitchVal').textContent = parseFloat(s.pitch || 1).toFixed(1);
+  document.getElementById('volVal').textContent   = Math.round((s.volume !== undefined ? s.volume : 1) * 100);
+  document.getElementById('pauseVal').textContent = parseFloat(s.pause || 1).toFixed(1);
+  populateVoices(s.voiceURI);
+  document.getElementById('speechModal').classList.add('open');
+}
+
+function closeSpeechSettings() {
+  document.getElementById('speechModal').classList.remove('open');
+}
+
+function saveSpeechSettings() {
+  const voiceSelect = document.getElementById('voiceSelect');
+  const s = {
+    rate:      parseFloat(document.getElementById('rateSlider').value),
+    pitch:     parseFloat(document.getElementById('pitchSlider').value),
+    volume:    parseFloat(document.getElementById('volSlider').value),
+    pause:     parseFloat(document.getElementById('pauseSlider').value),
+    voiceURI:  voiceSelect.value,
+    voiceName: voiceSelect.options[voiceSelect.selectedIndex]?.text || '',
+  };
+  localStorage.setItem(SPEECH_KEY, JSON.stringify(s));
+  document.getElementById('speedLabel').textContent = s.rate.toFixed(1) + '×';
+  speedIdx = speeds.findIndex(v => Math.abs(v - s.rate) < 0.05);
+  if (speedIdx === -1) speedIdx = 2;
+  closeSpeechSettings();
+  if (speaking) {
+    window.speechSynthesis.cancel();
+    setTimeout(() => playSegment(currentSegmentIdx), 100);
+  }
+}
+
+function populateVoices(selectedURI) {
+  const voices = window.speechSynthesis.getVoices();
+  const sel = document.getElementById('voiceSelect');
+  sel.innerHTML = '';
+  if (!voices.length) {
+    const opt = document.createElement('option');
+    opt.textContent = 'Loading voices...';
+    sel.appendChild(opt);
+    return;
+  }
+  const byLang = {};
+  voices.forEach(v => {
+    const lang = v.lang.split('-')[0].toUpperCase();
+    if (!byLang[lang]) byLang[lang] = [];
+    byLang[lang].push(v);
+  });
+  const langs = Object.keys(byLang).sort((a, b) =>
+    a === 'EN' ? -1 : b === 'EN' ? 1 : a.localeCompare(b)
+  );
+  langs.forEach(lang => {
+    const group = document.createElement('optgroup');
+    group.label = lang === 'EN' ? 'English' : lang;
+    byLang[lang].forEach(v => {
+      const opt = document.createElement('option');
+      opt.value = v.voiceURI;
+      opt.textContent = `${v.name}${v.localService ? ' ◆' : ''}`;
+      if (v.voiceURI === selectedURI) opt.selected = true;
+      group.appendChild(opt);
+    });
+    sel.appendChild(group);
+  });
+  if (!selectedURI && voices.length) sel.selectedIndex = 0;
+}
+
 async function fetchDigestList(cfg) {
   const url = `https://api.github.com/repos/${cfg.user}/${cfg.repo}/contents/digests?ref=${cfg.branch}`;
   const res = await fetch(url);
@@ -573,9 +698,8 @@ async function fetchDigestList(cfg) {
   const files = await res.json();
   return files
     .filter(f => f.name.endsWith('.md'))
-    .map(f => f.name.replace('digest_','').replace('.md',''))
-    .sort()
-    .reverse();
+    .map(f => f.name.replace('digest_', '').replace('.md', ''))
+    .sort().reverse();
 }
 
 async function fetchDigestContent(cfg, date) {
@@ -585,11 +709,8 @@ async function fetchDigestContent(cfg, date) {
   return res.text();
 }
 
-// ── Render ───────────────────────────────────────────────────────────────────
 function renderDigest(markdown) {
   const main = document.getElementById('main');
-
-  // Split into sections by ##
   const lines = markdown.split('\n');
   let title = '';
   let sections = [];
@@ -598,23 +719,26 @@ function renderDigest(markdown) {
 
   for (const line of lines) {
     if (line.startsWith('# ')) {
-      title = line.replace('# ','');
+      title = line.replace('# ', '');
     } else if (line.startsWith('## ')) {
       if (currentSection) sections.push(currentSection);
-      const sectionTitle = line.replace('## ','');
-      currentSection = { title: sectionTitle, bullets: [], isTopStory: sectionTitle.toLowerCase().includes('top story') };
+      const sectionTitle = line.replace('## ', '');
+      currentSection = {
+        title: sectionTitle,
+        bullets: [],
+        isTopStory: sectionTitle.toLowerCase().includes('top story')
+      };
     } else if (line.startsWith('- ') && currentSection) {
-      currentSection.bullets.push(line.replace(/^- /,''));
+      currentSection.bullets.push(line.replace(/^- /, ''));
     } else if (currentSection && currentSection.isTopStory && line.trim()) {
       topStoryContent += line + ' ';
     }
   }
   if (currentSection) sections.push(currentSection);
 
-  // Build HTML
   let html = `
     <div class="digest-header">
-      <div class="digest-date">${new Date().toLocaleDateString('en-US', {weekday:'long', month:'long', day:'numeric'})}</div>
+      <div class="digest-date">${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
       <h1 class="digest-title">${title || 'Daily Tech Digest'}</h1>
       <button class="listen-all-btn" onclick="listenAll()">
         <svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg>
@@ -623,7 +747,6 @@ function renderDigest(markdown) {
     </div>
   `;
 
-  // Collect all speech segments
   window.speechSegments = [];
 
   for (const section of sections) {
@@ -638,7 +761,6 @@ function renderDigest(markdown) {
     } else {
       const bulletTexts = section.bullets.map(b => stripLinks(b));
       window.speechSegments.push({ title: section.title, text: bulletTexts.join('. ') });
-
       html += `
         <div class="section">
           <div class="section-header">
@@ -660,26 +782,25 @@ function renderDigest(markdown) {
       `;
     }
   }
-
   main.innerHTML = html;
 }
 
 function linkify(text) {
-  // Convert ([Source](url)) to clickable links
   return text.replace(/\(\[([^\]]+)\]\(([^)]+)\)\)/g,
     '<a href="$2" target="_blank" rel="noopener">[$1]</a>');
 }
 
 function stripLinks(text) {
-  return text.replace(/\(\[([^\]]+)\]\(([^)]+)\)\)/g, '').replace(/\[([^\]]+)\]\([^)]+\)/g, '$1').trim();
+  return text
+    .replace(/\(\[([^\]]+)\]\(([^)]+)\)\)/g, '')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .trim();
 }
 
-// ── Speech ───────────────────────────────────────────────────────────────────
 let speaking = false;
 let currentSegmentIdx = 0;
-let speechRate = 1;
-const speeds = [0.8, 1, 1.2, 1.5, 1.8];
-let speedIdx = 1;
+const speeds = [0.5, 0.8, 1, 1.2, 1.5, 1.8, 2];
+let speedIdx = 2;
 
 function showPlayer() {
   document.getElementById('playerBar').classList.add('visible');
@@ -710,118 +831,11 @@ function listenSection(idx) {
   playSegment(idx);
 }
 
+function getVoice(uri) {
+  if (!uri) return null;
+  return window.speechSynthesis.getVoices().find(v => v.voiceURI === uri) || null;
+}
+
 function playSegment(idx) {
   const segs = window.speechSegments || [];
-  if (idx >= segs.length) {
-    stopSpeech();
-    return;
-  }
-
-  window.speechSynthesis.cancel();
-  const seg = segs[idx];
-  const text = `${seg.title}. ${seg.text}`;
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.rate = speechRate;
-  utter.lang = 'en-US';
-
-  const progress = Math.round(((idx + 1) / segs.length) * 100);
-  updatePlayerUI(seg.title, progress);
-  setPlayIcon(true);
-  speaking = true;
-
-  utter.onend = () => {
-    currentSegmentIdx = idx + 1;
-    playSegment(currentSegmentIdx);
-  };
-
-  utter.onerror = () => stopSpeech();
-  window.speechSynthesis.speak(utter);
-}
-
-function togglePlay() {
-  if (!window.speechSegments || !window.speechSegments.length) return;
-  if (speaking && !window.speechSynthesis.paused) {
-    window.speechSynthesis.pause();
-    setPlayIcon(false);
-    speaking = false;
-  } else if (window.speechSynthesis.paused) {
-    window.speechSynthesis.resume();
-    setPlayIcon(true);
-    speaking = true;
-  } else {
-    playSegment(currentSegmentIdx);
-  }
-}
-
-function stopSpeech() {
-  window.speechSynthesis.cancel();
-  speaking = false;
-  setPlayIcon(false);
-  updatePlayerUI('Stopped', 0);
-}
-
-function cycleSpeed() {
-  speedIdx = (speedIdx + 1) % speeds.length;
-  speechRate = speeds[speedIdx];
-  document.getElementById('speedLabel').textContent = speechRate + '×';
-  if (speaking) {
-    window.speechSynthesis.cancel();
-    playSegment(currentSegmentIdx);
-  }
-}
-
-// ── Init ─────────────────────────────────────────────────────────────────────
-async function loadDigest(date) {
-  const cfg = getConfig();
-  const main = document.getElementById('main');
-  main.innerHTML = '<div class="state-box"><span class="icon">◎</span>Loading digest...</div>';
-  try {
-    const md = await fetchDigestContent(cfg, date);
-    renderDigest(md);
-  } catch (e) {
-    main.innerHTML = `<div class="state-box"><span class="icon">!</span>Could not load digest for ${date}<br><small>${e.message}</small></div>`;
-  }
-}
-
-async function init() {
-  const cfg = getConfig();
-  const main = document.getElementById('main');
-  const sel = document.getElementById('dateSelect');
-
-  if (!cfg.user || !cfg.repo) {
-    openConfig();
-    return;
-  }
-
-  main.innerHTML = '<div class="state-box"><span class="icon">◎</span>Fetching digests...</div>';
-
-  try {
-    const dates = await fetchDigestList(cfg);
-    if (!dates.length) {
-      main.innerHTML = '<div class="state-box"><span class="icon">!</span>No digests found in repo yet.</div>';
-      return;
-    }
-
-    sel.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
-    sel.onchange = () => loadDigest(sel.value);
-    loadDigest(dates[0]);
-  } catch (e) {
-    main.innerHTML = `<div class="state-box"><span class="icon">!</span>Could not connect to GitHub<br><small>${e.message}</small></div>`;
-    openConfig();
-  }
-}
-
-// Close modal on backdrop click
-document.getElementById('configModal').addEventListener('click', function(e) {
-  if (e.target === this) closeConfig();
-});
-
-// Register service worker
-if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('sw.js').catch(() => {});
-}
-
-init();
-</script>
-</body>
-</html>
+  if (id
