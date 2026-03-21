@@ -532,7 +532,7 @@
 <main id="main">
   <div class="state-box">
     <span class="icon">◎</span>
-    Open settings to connect your GitHub repo
+    Loading your daily digest...
   </div>
 </main>
 
@@ -607,8 +607,19 @@ const CONFIG_KEY = 'digest_config';
 const SPEECH_KEY = 'speech_settings';
 
 function getConfig() {
-  try { return JSON.parse(localStorage.getItem(CONFIG_KEY)) || {}; }
-  catch { return {}; }
+  try {
+    const saved = JSON.parse(localStorage.getItem(CONFIG_KEY)) || {};
+    if (saved.user && saved.repo) return saved;
+  } catch {}
+  // Auto-detect from GitHub Pages URL: https://<user>.github.io/<repo>/
+  const host = window.location.hostname;
+  const path = window.location.pathname;
+  if (host.endsWith('.github.io')) {
+    const user = host.replace('.github.io', '');
+    const repo = path.split('/').filter(Boolean)[0] || '';
+    if (user && repo) return { user, repo, branch: 'main' };
+  }
+  return {};
 }
 
 function getSpeechSettings() {
