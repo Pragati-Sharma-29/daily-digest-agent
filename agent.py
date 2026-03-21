@@ -133,17 +133,39 @@ async def run():
         parts=[types.Part(text="Run the daily digest pipeline now.")],
     )
 
-    final_text = ""
     async for event in runner.run_async(
         user_id="system",
         session_id="daily_run",
         new_message=content,
     ):
         if event.is_final_response():
-            if event.content and event.content.parts:
-                final_text = event.content.parts[0].text
-                print("Pipeline complete.")
-                print(final_text)
+            print("Pipeline complete.")
+
+    # Read digest directly from session state
+    session = await session_service.get_session(
+        app_name="daily_digest",
+        user_id="system",
+        session_id="daily_run",
+    )
+
+    digest = session.state.get("daily_digest", "")
+    raw_feeds = session.state.get("raw_feeds", "")
+
+    print(f"Session state keys: {list(session.state.keys())}")
+
+    if digest:
+        save_digest(digest)
+        print("Digest saved from session state.")
+    elif raw_feeds:
+        # Fallback: save raw feeds if summarizer didn't run
+        save_digest(f"# Daily Digest — {datetime.now().strftime('%Y-%m-%d')}\n\n{raw_feeds}")
+        print("Saved raw feeds as fallback.")
+    else:
+        print("WARNING: No content found in session state.")
+
+
+if __name__ == "__main__":
+    asyncio.run(run())
 
     # Save from final response
     if final_text:
