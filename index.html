@@ -883,7 +883,7 @@ function playSegmentBrowser(idx) {
   updatePlayerUI(seg.title, Math.round(((idx + 1) / segs.length) * 100));
   setPlayIcon(true);
   speaking = true;
-  utter.onend = () => { currentSegmentIdx = idx + 1; setTimeout(() => playSegment(currentSegmentIdx), (s.pause || 1) * 1000); };
+  utter.onend = () => { currentSegmentIdx = idx + 1; setTimeout(() => playSegment(currentSegmentIdx), (s.pause || 3) * 1000); };
   utter.onerror = () => stopSpeech();
   window.speechSynthesis.speak(utter);
 }
