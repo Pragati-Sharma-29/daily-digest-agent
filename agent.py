@@ -5,6 +5,7 @@ Scrapes a set of sites in parallel, summarizes, and saves a Markdown digest.
 
 import os
 import requests
+import asyncio
 from bs4 import BeautifulSoup
 from datetime import datetime
 from google.adk.agents import LlmAgent, SequentialAgent, ParallelAgent
@@ -143,11 +144,11 @@ root_agent = SequentialAgent(
 
 # ─── Runner (entry point) ─────────────────────────────────────────────────────
 
-def run():
-    print(f"🚀 Starting daily digest pipeline — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
+async def run():
+    print(f"Starting pipeline — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     session_service = InMemorySessionService()
-    session = session_service.create_session(
+    await session_service.create_session(
         app_name="daily_digest",
         user_id="system",
         session_id="daily_run",
@@ -164,16 +165,35 @@ def run():
         parts=[types.Part(text="Run the daily digest pipeline now.")],
     )
 
-    for event in runner.run(
+    final_text = ""
+    async for event in runner.run_async(
         user_id="system",
         session_id="daily_run",
         new_message=content,
     ):
         if event.is_final_response():
-            print("✅ Pipeline complete.")
             if event.content and event.content.parts:
-                print(event.content.parts[0].text)
+                final_text = event.content.parts[0].text
+                print("Pipeline complete.")
+                print(final_text)
+
+    # Save from final response
+    if final_text:
+        save_digest(final_text)
+    else:
+        # Try reading from session state directly
+        session = await session_service.get_session(
+            app_name="daily_digest",
+            user_id="system",
+            session_id="daily_run",
+        )
+        digest = session.state.get("daily_digest", "")
+        if digest:
+            save_digest(digest)
+            print("Digest saved from session state.")
+        else:
+            print("WARNING: No digest content found.")
 
 
 if __name__ == "__main__":
-    run()
+    asyncio.run(run())
