@@ -63,15 +63,17 @@ fetcher_agent = LlmAgent(
     output_key="raw_feeds",
 )
 
+today = datetime.now().strftime("%Y-%m-%d")
+
 summarizer_agent = LlmAgent(
     name="summarizer",
     model="gemini-3-flash-preview",
-    instruction="""
+    instruction=f"""
         You are a daily tech news digest writer. Read the raw RSS feed content
         from session state key 'raw_feeds' and write a clean Markdown digest.
 
         Format:
-        # Daily Tech Digest — {date}
+        # Daily Tech Digest — {today}
 
         One ## section per feed source with 3-5 bullet point takeaways.
         End with a ## Top Story section highlighting the single most important item.
