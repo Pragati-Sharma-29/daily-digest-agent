@@ -70,7 +70,7 @@ def save_digest(digest: str) -> str:
 
 fetcher_agent = LlmAgent(
     name="rss_fetcher",
-    model="gemini-1.5-flash",
+    model="gemini-2.0-flash-exp",
     instruction="""
         Call fetch_all_rss_feeds to get the latest news from all RSS feeds.
         Store the raw content in session state under key 'raw_feeds'.
@@ -81,7 +81,7 @@ fetcher_agent = LlmAgent(
 
 summarizer_agent = LlmAgent(
     name="summarizer",
-    model="gemini-1.5-flash",
+    model="gemini-2.0-flash-exp",
     instruction=f"""
         You are a daily tech news digest writer. Read the raw RSS feed content 
         from session state key 'raw_feeds' and write a clean Markdown digest.
@@ -99,7 +99,7 @@ summarizer_agent = LlmAgent(
 
 saver_agent = LlmAgent(
     name="saver",
-    model="gemini-1.5-flash",
+    model="gemini-2.0-flash-exp",
     instruction="Retrieve the value of 'daily_digest' from session state and save it using save_digest.",
     tools=[FunctionTool(save_digest)],
 )
