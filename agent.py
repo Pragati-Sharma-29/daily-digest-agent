@@ -12,47 +12,46 @@ from google.genai import types
 # ─── Master feed list ─────────────────────────────────────────────────────────
 ALL_FEEDS = [
     # ── Enterprise & B2B SaaS ──────────────────────────────────────────────
-    {"name": "a16z",                "url": "https://a16z.com/feed/"},
-    {"name": "Bessemer",            "url": "https://www.bvp.com/atlas/rss.xml"},
-    {"name": "Battery_Ventures",    "url": "https://www.battery.com/feed/"},
-    {"name": "Insight_Partners",    "url": "https://www.insightpartners.com/feed/"},
-    {"name": "Sapphire_Ventures",   "url": "https://sapphireventures.com/feed/"},
+    {"name": "a16z",               "url": "https://a16z.com/feed/"},
+    {"name": "Bessemer",           "url": "https://www.bvp.com/atlas/rss.xml"},
+    {"name": "Battery_Ventures",   "url": "https://www.battery.com/feed/"},
+    {"name": "Insight_Partners",   "url": "https://www.insightpartners.com/feed/"},
+    {"name": "Sapphire_Ventures",  "url": "https://sapphireventures.com/feed/"},
 
     # ── Security ───────────────────────────────────────────────────────────
-    {"name": "Sequoia",             "url": "https://www.sequoiacap.com/feed/"},
-    {"name": "YL_Ventures",         "url": "https://ylventures.com/feed/"},
-    {"name": "Team8",               "url": "https://team8.vc/feed/"},
-    {"name": "NightDragon",         "url": "https://nightdragon.com/feed/"},
+    {"name": "Sequoia",            "url": "https://www.sequoiacap.com/feed/"},
+    {"name": "YL_Ventures",        "url": "https://ylventures.com/feed/"},
+    {"name": "Team8",              "url": "https://team8.vc/feed/"},
+    {"name": "NightDragon",        "url": "https://nightdragon.com/feed/"},
 
     # ── Industry & Deep Tech ───────────────────────────────────────────────
-    {"name": "Greylock",            "url": "https://greylock.com/feed/"},
-    {"name": "Lightspeed",          "url": "https://lsvp.com/feed/"},
-    {"name": "Redpoint",            "url": "https://www.redpoint.com/feed/"},
-    {"name": "First_Round_Review",  "url": "https://review.firstround.com/feed.xml"},
-    {"name": "NFX",                 "url": "https://www.nfx.com/feed"},
+    {"name": "Greylock",           "url": "https://greylock.com/feed/"},
+    {"name": "Lightspeed",         "url": "https://lsvp.com/feed/"},
+    {"name": "Redpoint",           "url": "https://www.redpoint.com/feed/"},
+    {"name": "First_Round_Review", "url": "https://review.firstround.com/feed.xml"},
+    {"name": "NFX",                "url": "https://www.nfx.com/feed"},
 
     # ── Agentic AI & LLMs ─────────────────────────────────────────────────
-    {"name": "Madrona",             "url": "https://www.madrona.com/feed/"},
-    {"name": "Felicis",             "url": "https://www.felicis.com/feed/"},
-    {"name": "LangChain_Blog",      "url": "https://blog.langchain.dev/rss/"},
-    {"name": "Conviction",          "url": "https://www.conviction.com/feed"},
+    {"name": "Madrona",            "url": "https://www.madrona.com/feed/"},
+    {"name": "Felicis",            "url": "https://www.felicis.com/feed/"},
+    {"name": "LangChain_Blog",     "url": "https://blog.langchain.dev/rss/"},
+    {"name": "Conviction",         "url": "https://www.conviction.com/feed"},
 
     # ── Operator Blogs ─────────────────────────────────────────────────────
-    {"name": "OpenAI",              "url": "https://openai.com/blog/rss.xml"},
-    {"name": "Anthropic",           "url": "https://www.anthropic.com/feed.xml"},
-    {"name": "Google_DeepMind",     "url": "https://deepmind.google/blog/rss.xml"},
-    {"name": "Microsoft_AI",        "url": "https://blogs.microsoft.com/ai/feed/"},
-    {"name": "LangChain",           "url": "https://blog.langchain.dev/rss/"},
-     # ── Tech News ─────────────────────────────────────────────────────────
-    {"name": "TechCrunch_AI",       "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
-    {"name": "TechCrunch",          "url": "https://techcrunch.com/feed/"},
-    {"name": "The_Verge_Tech",      "url": "https://www.theverge.com/rss/index.xml"},
-    {"name": "Hacker_News",         "url": "https://news.ycombinator.com/rss"},
-    {"name": "MIT_Tech_Review",     "url": "https://www.technologyreview.com/feed/"},
-    {"name": "Wired_AI",            "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
-    {"name": "VentureBeat_AI",      "url": "https://venturebeat.com/category/ai/feed/"},
-    {"name": "Ars_Technica",        "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
+    {"name": "OpenAI",             "url": "https://openai.com/blog/rss.xml"},
+    {"name": "Anthropic",          "url": "https://www.anthropic.com/feed.xml"},
+    {"name": "Google_DeepMind",    "url": "https://deepmind.google/blog/rss.xml"},
+    {"name": "Microsoft_AI",       "url": "https://blogs.microsoft.com/ai/feed/"},
 
+    # ── Tech News ─────────────────────────────────────────────────────────
+    {"name": "TechCrunch_AI",      "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
+    {"name": "TechCrunch",         "url": "https://techcrunch.com/feed/"},
+    {"name": "The_Verge_Tech",     "url": "https://www.theverge.com/rss/index.xml"},
+    {"name": "Hacker_News",        "url": "https://news.ycombinator.com/rss"},
+    {"name": "MIT_Tech_Review",    "url": "https://www.technologyreview.com/feed/"},
+    {"name": "Wired_AI",           "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
+    {"name": "VentureBeat_AI",     "url": "https://venturebeat.com/category/ai/feed/"},
+    {"name": "Ars_Technica",       "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
 ]
 
 FEEDS_STATE_FILE = "feeds_state.json"
@@ -69,9 +68,12 @@ def load_feeds_state() -> dict:
 
 def save_feeds_state(state: dict):
     """Saves feed health state to JSON file."""
-    with open(FEEDS_STATE_FILE, "w") as f:
-        json.dump(state, f, indent=2)
-    print(f"Feed state saved to {FEEDS_STATE_FILE}")
+    try:
+        with open(FEEDS_STATE_FILE, "w") as f:
+            json.dump(state, f, indent=2)
+        print(f"Feed state saved to {FEEDS_STATE_FILE}")
+    except Exception as e:
+        print(f"WARNING: Could not save feed state — {str(e)}")
 
 
 def get_active_feeds(state: dict) -> list:
@@ -98,7 +100,7 @@ def fetch_all_rss_feeds() -> str:
     active_feeds = get_active_feeds(state)
     all_content = []
     working = []
-    failed  = []
+    failed = []
 
     print(f"\nTesting {len(active_feeds)} active feeds...\n")
 
@@ -107,7 +109,6 @@ def fetch_all_rss_feeds() -> str:
             feed = feedparser.parse(feed_info["url"])
 
             if feed.entries:
-                # Feed is working — reset failure count
                 state[feed_info["name"]] = {
                     "failures": 0,
                     "last_success": datetime.now().strftime("%Y-%m-%d"),
@@ -127,11 +128,9 @@ def fetch_all_rss_feeds() -> str:
                 all_content.append(section)
 
             else:
-                # Feed parsed but empty
                 raise ValueError("No entries found")
 
         except Exception as e:
-            # Increment failure count
             current_failures = state.get(feed_info["name"], {}).get("failures", 0)
             state[feed_info["name"]] = {
                 "failures": current_failures + 1,
@@ -142,17 +141,16 @@ def fetch_all_rss_feeds() -> str:
             failed.append(feed_info["name"])
             print(f"❌ {feed_info['name']} — {str(e)} (failure #{current_failures + 1})")
 
-    # Print summary
     print(f"\n── Feed Summary ─────────────────────")
     print(f"✅ Working : {len(working)}")
     print(f"❌ Failed  : {len(failed)}")
+    if failed:
+        print(f"Failed feeds: {', '.join(failed)}")
 
-    # Warn about feeds being disabled
     for feed_name, feed_state in state.items():
         if feed_state.get("failures", 0) >= 3:
             print(f"🚫 DISABLED: {feed_name} — failed 3+ times, skipping until manually re-enabled")
 
-    # Save updated state
     save_feeds_state(state)
 
     return "\n\n".join(all_content) if all_content else "No feed content available."
@@ -191,13 +189,32 @@ summarizer_agent = LlmAgent(
         You are a daily tech news digest writer. Read the raw RSS feed content
         from session state key 'raw_feeds' and write a clean Markdown digest.
 
-        Format:
+        IMPORTANT RULES:
+        - Do NOT organize by source. Instead group stories by TOPIC.
+        - Identify the major themes and topics across ALL sources combined.
+        - For each topic write 3-5 bullet points summarizing key insights.
+        - Each bullet point must end with a source reference link in this format:
+          ([Source Name](url))
+        - If multiple sources cover the same topic, combine them under one section.
+
+        Use this exact format:
+
         # Daily Tech Digest — {today}
 
-        One ## section per feed source with 3-5 bullet point takeaways.
-        End with a ## Top Story section highlighting the single most important item.
+        ## [Topic Name e.g. "Agentic AI"]
+        - Key insight or development from across sources ([Source Name](url))
+        - Another insight ([Source Name](url))
+        - Another insight ([Source Name](url))
 
-        Be concise, factual, and scannable.
+        ## [Next Topic e.g. "Enterprise Security"]
+        - Key insight ([Source Name](url))
+        - Another insight ([Source Name](url))
+
+        ## Top Story
+        A 2-3 sentence summary of the single most important story today,
+        with a link to the source.
+
+        Aim for 5-8 topic sections. Be concise, factual, and scannable.
     """,
     output_key="daily_digest",
 )
