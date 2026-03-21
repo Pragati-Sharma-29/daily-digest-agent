@@ -1,12 +1,12 @@
 {
   "a16z": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://a16z.com/feed/"
   },
   "Bessemer": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.bvp.com/atlas/rss.xml"
@@ -22,7 +22,7 @@
     "url": "https://www.insightpartners.com/feed/"
   },
   "Sapphire_Ventures": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://sapphireventures.com/feed/"
@@ -48,7 +48,7 @@
     "url": "https://nightdragon.com/feed/"
   },
   "Greylock": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://greylock.com/feed/"
@@ -59,19 +59,19 @@
     "url": "https://lsvp.com/feed/"
   },
   "Redpoint": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.redpoint.com/feed/"
   },
   "First_Round_Review": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://review.firstround.com/feed.xml"
   },
   "NFX": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.nfx.com/feed"
@@ -82,7 +82,7 @@
     "url": "https://www.madrona.com/feed/"
   },
   "Felicis": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.felicis.com/feed/"
@@ -93,7 +93,7 @@
     "url": "https://blog.langchain.dev/rss/"
   },
   "Conviction": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.conviction.com/feed"
@@ -104,7 +104,7 @@
     "url": "https://openai.com/blog/rss.xml"
   },
   "Anthropic": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.anthropic.com/feed.xml"
@@ -150,7 +150,7 @@
     "url": "https://www.technologyreview.com/feed/"
   },
   "Wired_AI": {
-    "failures": 2,
+    "failures": 3,
     "last_failure": "2026-03-21",
     "last_error": "No entries found",
     "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"
