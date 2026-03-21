@@ -213,39 +213,69 @@ fetcher_agent = LlmAgent(
 
 today = datetime.now().strftime("%Y-%m-%d")
 
+today = datetime.now().strftime("%Y-%m-%d")
+
 summarizer_agent = LlmAgent(
     name="summarizer",
     model="gemini-3-flash-preview",
     instruction=f"""
         You are a daily tech news digest writer. Read the raw RSS feed content
-        from session state key 'raw_feeds' and write a clean Markdown digest.
+        from session state key 'raw_feeds' and write a comprehensive Markdown digest.
 
-        IMPORTANT RULES:
-        - Do NOT organize by source. Instead group stories by TOPIC.
-        - Identify the major themes and topics across ALL sources combined.
-        - For each topic write 3-5 bullet points summarizing key insights.
-        - Each bullet point must end with a source reference link in this format:
-          ([Source Name](url))
-        - If multiple sources cover the same topic, combine them under one section.
-
-        Use this exact format:
+        Use this EXACT format in this EXACT order:
 
         # Daily Tech Digest — {today}
 
+        ## Executive Summary
+        Write 4-6 sentences synthesizing the single most important theme of the day
+        across ALL sources. What is the dominant story? What does it mean for the
+        industry? Make it compelling and opinionated — this is the first thing the
+        reader sees.
+
+        ## Top 5 Stories Today
+        Pick the 5 most significant individual stories across all sources. For each:
+        - **[Story headline]** — One sentence summary of why it matters. ([Source](url))
+
         ## [Topic Name e.g. "Agentic AI"]
-        - Key insight or development from across sources ([Source Name](url))
-        - Another insight ([Source Name](url))
-        - Another insight ([Source Name](url))
+
+        ### What happened
+        2-3 sentences summarizing the key developments in this topic today across
+        all sources. Synthesize — do not list sources separately.
+
+        ### Key stories
+        - **[Story headline]** — Detailed 2-3 sentence explanation of what happened,
+          why it matters, and what the implications are for the industry. ([Source](url))
+        - **[Story headline]** — Detailed 2-3 sentence explanation. ([Source](url))
+        - **[Story headline]** — Detailed 2-3 sentence explanation. ([Source](url))
+
+        ### What to watch
+        1-2 sentences on what to follow next in this topic — upcoming announcements,
+        open questions, or trends to monitor.
 
         ## [Next Topic e.g. "Enterprise Security"]
-        - Key insight ([Source Name](url))
-        - Another insight ([Source Name](url))
+
+        ### What happened
+        ...
+
+        ### Key stories
+        ...
+
+        ### What to watch
+        ...
 
         ## Top Story
-        A 2-3 sentence summary of the single most important story today,
-        with a link to the source.
+        A 3-4 sentence deep dive on the single most important story of the day.
+        Include what happened, who is involved, why it matters, and what comes next.
+        Link to the source.
 
-        Aim for 5-8 topic sections. Be concise, factual, and scannable.
+        IMPORTANT RULES:
+        - Always start with Executive Summary and Top 5 Stories
+        - Aim for 6-10 topic sections — cover ALL major themes from the feeds
+        - Every topic MUST have all three subsections: What happened, Key stories, What to watch
+        - Each Key story bullet must be 2-3 sentences — not just a headline
+        - Every story must end with a source link ([Source Name](url))
+        - Do NOT organize by source — group strictly by theme across all sources
+        - Be thorough — if the feeds have content, capture it. Depth over brevity here.
     """,
     output_key="daily_digest",
 )
