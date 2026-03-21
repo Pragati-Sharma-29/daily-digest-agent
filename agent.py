@@ -1,4 +1,5 @@
 import os
+import json
 import asyncio
 import feedparser
 from datetime import datetime
@@ -8,35 +9,153 @@ from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
 
-# ─── RSS Feeds ────────────────────────────────────────────────────────────────
-RSS_FEEDS = [
-    {"name": "TechCrunch_AI",  "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
-    {"name": "Hacker_News",    "url": "https://news.ycombinator.com/rss"},
-    {"name": "MIT_Tech_Review","url": "https://www.technologyreview.com/feed/"},
-    {"name": "Wired_AI",       "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
-    {"name": "VentureBeat_AI", "url": "https://venturebeat.com/category/ai/feed/"},
+# ─── Master feed list ─────────────────────────────────────────────────────────
+ALL_FEEDS = [
+    # ── Enterprise & B2B SaaS ──────────────────────────────────────────────
+    {"name": "a16z",                "url": "https://a16z.com/feed/"},
+    {"name": "Bessemer",            "url": "https://www.bvp.com/atlas/rss.xml"},
+    {"name": "Battery_Ventures",    "url": "https://www.battery.com/feed/"},
+    {"name": "Insight_Partners",    "url": "https://www.insightpartners.com/feed/"},
+    {"name": "Sapphire_Ventures",   "url": "https://sapphireventures.com/feed/"},
+
+    # ── Security ───────────────────────────────────────────────────────────
+    {"name": "Sequoia",             "url": "https://www.sequoiacap.com/feed/"},
+    {"name": "YL_Ventures",         "url": "https://ylventures.com/feed/"},
+    {"name": "Team8",               "url": "https://team8.vc/feed/"},
+    {"name": "NightDragon",         "url": "https://nightdragon.com/feed/"},
+
+    # ── Industry & Deep Tech ───────────────────────────────────────────────
+    {"name": "Greylock",            "url": "https://greylock.com/feed/"},
+    {"name": "Lightspeed",          "url": "https://lsvp.com/feed/"},
+    {"name": "Redpoint",            "url": "https://www.redpoint.com/feed/"},
+    {"name": "First_Round_Review",  "url": "https://review.firstround.com/feed.xml"},
+    {"name": "NFX",                 "url": "https://www.nfx.com/feed"},
+
+    # ── Agentic AI & LLMs ─────────────────────────────────────────────────
+    {"name": "Madrona",             "url": "https://www.madrona.com/feed/"},
+    {"name": "Felicis",             "url": "https://www.felicis.com/feed/"},
+    {"name": "LangChain_Blog",      "url": "https://blog.langchain.dev/rss/"},
+    {"name": "Conviction",          "url": "https://www.conviction.com/feed"},
+
+    # ── Operator Blogs ─────────────────────────────────────────────────────
+    {"name": "OpenAI",              "url": "https://openai.com/blog/rss.xml"},
+    {"name": "Anthropic",           "url": "https://www.anthropic.com/feed.xml"},
+    {"name": "Google_DeepMind",     "url": "https://deepmind.google/blog/rss.xml"},
+    {"name": "Microsoft_AI",        "url": "https://blogs.microsoft.com/ai/feed/"},
+    {"name": "LangChain",           "url": "https://blog.langchain.dev/rss/"},
+     # ── Tech News ─────────────────────────────────────────────────────────
+    {"name": "TechCrunch_AI",       "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
+    {"name": "TechCrunch",          "url": "https://techcrunch.com/feed/"},
+    {"name": "The_Verge_Tech",      "url": "https://www.theverge.com/rss/index.xml"},
+    {"name": "Hacker_News",         "url": "https://news.ycombinator.com/rss"},
+    {"name": "MIT_Tech_Review",     "url": "https://www.technologyreview.com/feed/"},
+    {"name": "Wired_AI",            "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
+    {"name": "VentureBeat_AI",      "url": "https://venturebeat.com/category/ai/feed/"},
+    {"name": "Ars_Technica",        "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
+
 ]
+
+FEEDS_STATE_FILE = "feeds_state.json"
+
+# ─── Feed state management ────────────────────────────────────────────────────
+
+def load_feeds_state() -> dict:
+    """Loads feed health state from JSON file."""
+    if os.path.exists(FEEDS_STATE_FILE):
+        with open(FEEDS_STATE_FILE, "r") as f:
+            return json.load(f)
+    return {}
+
+
+def save_feeds_state(state: dict):
+    """Saves feed health state to JSON file."""
+    with open(FEEDS_STATE_FILE, "w") as f:
+        json.dump(state, f, indent=2)
+    print(f"Feed state saved to {FEEDS_STATE_FILE}")
+
+
+def get_active_feeds(state: dict) -> list:
+    """Returns feeds that haven't failed more than 3 consecutive times."""
+    active = []
+    for feed in ALL_FEEDS:
+        feed_state = state.get(feed["name"], {"failures": 0})
+        if feed_state["failures"] < 3:
+            active.append(feed)
+        else:
+            print(f"⏭️  Skipping {feed['name']} — failed {feed_state['failures']} times in a row")
+    return active
+
 
 # ─── Tools ────────────────────────────────────────────────────────────────────
 
 def fetch_all_rss_feeds() -> str:
-    """Fetches all RSS feeds and returns combined content as a single string."""
+    """Tests and fetches all active RSS feeds, updating health state.
+
+    Returns:
+        Combined content from all working feeds.
+    """
+    state = load_feeds_state()
+    active_feeds = get_active_feeds(state)
     all_content = []
-    for feed_info in RSS_FEEDS:
+    working = []
+    failed  = []
+
+    print(f"\nTesting {len(active_feeds)} active feeds...\n")
+
+    for feed_info in active_feeds:
         try:
             feed = feedparser.parse(feed_info["url"])
-            entries = []
-            for entry in feed.entries[:5]:
-                title   = entry.get("title", "No title")
-                link    = entry.get("link", "")
-                summary = entry.get("summary", "")[:200]
-                entries.append(f"  - {title}\n    {link}\n    {summary}")
-            section = f"[{feed_info['name']}]\n" + "\n".join(entries)
-            all_content.append(section)
-            print(f"Fetched {len(feed.entries)} entries from {feed_info['name']}")
+
+            if feed.entries:
+                # Feed is working — reset failure count
+                state[feed_info["name"]] = {
+                    "failures": 0,
+                    "last_success": datetime.now().strftime("%Y-%m-%d"),
+                    "url": feed_info["url"],
+                }
+                working.append(feed_info["name"])
+                print(f"✅ {feed_info['name']} — {len(feed.entries)} entries")
+
+                entries = []
+                for entry in feed.entries[:5]:
+                    title   = entry.get("title", "No title")
+                    link    = entry.get("link", "")
+                    summary = entry.get("summary", "")[:200]
+                    entries.append(f"  - {title}\n    {link}\n    {summary}")
+
+                section = f"[{feed_info['name']}]\n" + "\n".join(entries)
+                all_content.append(section)
+
+            else:
+                # Feed parsed but empty
+                raise ValueError("No entries found")
+
         except Exception as e:
-            all_content.append(f"[{feed_info['name']}] ERROR: {str(e)}")
-    return "\n\n".join(all_content)
+            # Increment failure count
+            current_failures = state.get(feed_info["name"], {}).get("failures", 0)
+            state[feed_info["name"]] = {
+                "failures": current_failures + 1,
+                "last_failure": datetime.now().strftime("%Y-%m-%d"),
+                "last_error": str(e),
+                "url": feed_info["url"],
+            }
+            failed.append(feed_info["name"])
+            print(f"❌ {feed_info['name']} — {str(e)} (failure #{current_failures + 1})")
+
+    # Print summary
+    print(f"\n── Feed Summary ─────────────────────")
+    print(f"✅ Working : {len(working)}")
+    print(f"❌ Failed  : {len(failed)}")
+
+    # Warn about feeds being disabled
+    for feed_name, feed_state in state.items():
+        if feed_state.get("failures", 0) >= 3:
+            print(f"🚫 DISABLED: {feed_name} — failed 3+ times, skipping until manually re-enabled")
+
+    # Save updated state
+    save_feeds_state(state)
+
+    return "\n\n".join(all_content) if all_content else "No feed content available."
 
 
 def save_digest(digest: str) -> str:
@@ -143,7 +262,7 @@ async def run():
         save_digest(digest)
         print("Digest saved from session state.")
     elif raw_feeds:
-        save_digest(f"# Daily Digest — {datetime.now().strftime('%Y-%m-%d')}\n\n{raw_feeds}")
+        save_digest(f"# Daily Digest — {today}\n\n{raw_feeds}")
         print("Saved raw feeds as fallback.")
     else:
         print("WARNING: No content found in session state.")
