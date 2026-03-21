@@ -76,6 +76,13 @@ ALL_FEEDS = [
     # ── GCP General ───────────────────────────────────────────────────────────
     {"name": "GCP_Blog",            "url": "https://cloudblog.withgoogle.com/rss/"},
     {"name": "GCP_Inside",          "url": "https://cloudblog.withgoogle.com/topics/inside-google-cloud/rss/"},
+    # ── Economic Times ────────────────────────────────────────────────────────
+    {"name": "ET_Tech",             "url": "https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms"},
+    {"name": "ET_AI",               "url": "https://economictimes.indiatimes.com/tech/artificial-intelligence/rssfeeds/78570561.cms"},
+    {"name": "ET_Startups",         "url": "https://economictimes.indiatimes.com/tech/startups/rssfeeds/78570561.cms"},
+    {"name": "ET_Markets",          "url": "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"},
+    {"name": "ET_Economy",          "url": "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms"},
+    {"name": "ET_IT",               "url": "https://economictimes.indiatimes.com/tech/information-tech/rssfeeds/13357270.cms"},
 ]
 
 FEEDS_STATE_FILE = "feeds_state.json"
