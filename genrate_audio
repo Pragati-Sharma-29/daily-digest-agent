@@ -1,0 +1,113 @@
+import os
+import json
+import requests
+from pathlib import Path
+from datetime import datetime
+
+API_KEY = os.environ["GOOGLE_TTS_KEY"]
+TTS_URL = f"https://texttospeech.googleapis.com/v1/text:synthesize?key={API_KEY}"
+
+VOICE = {
+    "languageCode": "en-US",
+    "name": "en-US-Neural2-F",   # warm, natural feminine voice
+    "ssmlGender": "FEMALE"
+}
+
+AUDIO_CONFIG = {
+    "audioEncoding": "MP3",
+    "speakingRate": 1.0,
+    "pitch": 0.0,
+    "volumeGainDb": 0.0,
+}
+
+def synthesize(text: str) -> bytes:
+    payload = {
+        "input": {"text": text},
+        "voice": VOICE,
+        "audioConfig": AUDIO_CONFIG,
+    }
+    res = requests.post(TTS_URL, json=payload)
+    res.raise_for_status()
+    import base64
+    return base64.b64decode(res.json()["audioContent"])
+
+
+def parse_digest(md: str) -> list:
+    """Parse markdown digest into list of {title, text} segments."""
+    segments = []
+    lines = md.split("\n")
+    current = None
+
+    for line in lines:
+        if line.startswith("# "):
+            segments.append({
+                "title": "Introduction",
+                "text": line.replace("# ", "").strip()
+            })
+        elif line.startswith("## "):
+            if current:
+                segments.append(current)
+            current = {
+                "title": line.replace("## ", "").strip(),
+                "text": ""
+            }
+        elif line.startswith("- ") and current:
+            # Strip markdown links for cleaner speech
+            clean = line.replace("- ", "")
+            clean = __import__("re").sub(r'\(\[([^\]]+)\]\([^)]+\)\)', r'', clean)
+            clean = __import__("re").sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', clean)
+            current["text"] += clean.strip() + ". "
+        elif current and line.strip() and current["title"].lower() == "top story":
+            clean = __import__("re").sub(r'\[([^\]]+)\]\([^)]+\)', r'\1', line)
+            current["text"] += clean.strip() + " "
+
+    if current:
+        segments.append(current)
+
+    return [s for s in segments if s["text"].strip()]
+
+
+def generate_audio_for_digest(date: str):
+    md_path = Path(f"digests/digest_{date}.md")
+    audio_dir = Path(f"audio/{date}")
+
+    if not md_path.exists():
+        print(f"No digest found for {date}")
+        return
+
+    audio_dir.mkdir(parents=True, exist_ok=True)
+
+    md = md_path.read_text(encoding="utf-8")
+    segments = parse_digest(md)
+
+    print(f"Generating {len(segments)} audio segments for {date}...")
+
+    manifest = []
+    for i, seg in enumerate(segments):
+        out_path = audio_dir / f"segment_{i:02d}.mp3"
+
+        if out_path.exists():
+            print(f"  Skipping {out_path.name} (already exists)")
+        else:
+            text = f"{seg['title']}. {seg['text']}"
+            print(f"  [{i+1}/{len(segments)}] {seg['title'][:40]}...")
+            audio = synthesize(text)
+            out_path.write_bytes(audio)
+            print(f"  Saved {out_path.name} ({len(audio)} bytes)")
+
+        manifest.append({
+            "index": i,
+            "title": seg["title"],
+            "file": f"audio/{date}/segment_{i:02d}.mp3"
+        })
+
+    # Write manifest so the web app knows what to play
+    manifest_path = audio_dir / "manifest.json"
+    manifest_path.write_text(json.dumps(manifest, indent=2))
+    print(f"Manifest written → {manifest_path}")
+
+
+if __name__ == "__main__":
+    # Generate audio for today's digest
+    today = datetime.now().strftime("%Y-%m-%d")
+    generate_audio_for_digest(today)
