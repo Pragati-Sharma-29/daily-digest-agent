@@ -45,6 +45,8 @@ ALL_FEEDS = [
 
     # ── Tech News ─────────────────────────────────────────────────────────
     {"name": "TechCrunch_AI",      "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
+    {"name":"Stratechery",         "url":"https://stratechery.passport.online/feed/rss/9LJX5hRpMewDRXZCFh5mWU"},
+    {"name":"Asianometry",         "url":"https://asianometry.passport.online/feed/rss/9LJX5hRpMewDRXZCFh5mWU"},
     {"name": "TechCrunch",         "url": "https://techcrunch.com/feed/"},
     {"name": "The_Verge_Tech",     "url": "https://www.theverge.com/rss/index.xml"},
     {"name": "Hacker_News",        "url": "https://news.ycombinator.com/rss"},
@@ -52,6 +54,28 @@ ALL_FEEDS = [
     {"name": "Wired_AI",           "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"},
     {"name": "VentureBeat_AI",     "url": "https://venturebeat.com/category/ai/feed/"},
     {"name": "Ars_Technica",       "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
+
+    # ── GCP AI & Machine Learning ─────────────────────────────────────────────
+    {"name": "GCP_AI_ML",           "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/"},
+    {"name": "GCP_Vertex_AI",       "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/"},
+    {"name": "Google_Research",     "url": "https://research.google/blog/rss/"},
+    {"name": "GCP_Developers",      "url": "https://cloudblog.withgoogle.com/topics/developers-practitioners/rss/"},
+
+    # ── GCP Data Analytics ────────────────────────────────────────────────────
+    {"name": "GCP_Data_Analytics",  "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"},
+    {"name": "GCP_BigQuery",        "url": "https://cloudblog.withgoogle.com/products/bigquery/rss/"},
+    {"name": "GCP_Dataplex",        "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"},
+    {"name": "GCP_Looker",          "url": "https://cloudblog.withgoogle.com/products/looker/rss/"},
+
+    # ── GCP Databases ─────────────────────────────────────────────────────────
+    {"name": "GCP_Databases",       "url": "https://cloudblog.withgoogle.com/products/databases/rss/"},
+    {"name": "GCP_AlloyDB",         "url": "https://cloudblog.withgoogle.com/products/alloydb/rss/"},
+    {"name": "GCP_Spanner",         "url": "https://cloudblog.withgoogle.com/products/spanner/rss/"},
+    {"name": "GCP_Cloud_SQL",       "url": "https://cloudblog.withgoogle.com/products/cloud-sql/rss/"},
+
+    # ── GCP General ───────────────────────────────────────────────────────────
+    {"name": "GCP_Blog",            "url": "https://cloudblog.withgoogle.com/rss/"},
+    {"name": "GCP_Inside",          "url": "https://cloudblog.withgoogle.com/topics/inside-google-cloud/rss/"},
 ]
 
 FEEDS_STATE_FILE = "feeds_state.json"
