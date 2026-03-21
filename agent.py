@@ -164,9 +164,3 @@ async def run():
 
 if __name__ == "__main__":
     asyncio.run(run())
-```
-
-Also update `requirements.txt` on GitHub:
-```
-google-adk>=0.3.0
-feedparser>=6.0.0
