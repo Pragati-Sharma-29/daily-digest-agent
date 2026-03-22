@@ -333,7 +333,7 @@ async def run():
     print(f"Starting pipeline — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
     session_service = InMemorySessionService()
-    await session_service.create_session(
+    session_service.create_session(
         app_name="daily_digest",
         user_id="system",
         session_id="daily_run",
