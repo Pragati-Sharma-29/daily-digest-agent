@@ -2,8 +2,14 @@ import os
 import re
 import json
 import asyncio
+import warnings
 import feedparser
 from html import unescape
+from datetime import datetime
+
+# ─── Suppress known harmless warnings ─────────────────────────────────────────
+warnings.filterwarnings("ignore", message=".*non-text parts in the response.*")
+warnings.filterwarnings("ignore", message=".*google-cloud-storage.*")
 
 # ─── Bytes-safe JSON encoding ─────────────────────────────────────────────────
 # ADK telemetry calls json.dumps on LLM request objects that may contain bytes
@@ -16,7 +22,6 @@ def _bytes_safe_json_default(self, obj):
     return _original_json_default(self, obj)
 
 json.JSONEncoder.default = _bytes_safe_json_default
-from datetime import datetime
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.tools import FunctionTool
 from google.adk.runners import Runner
@@ -153,17 +158,27 @@ def save_feeds_state(state: dict):
 
 
 def get_active_feeds(state: dict) -> list:
-    """Returns feeds that haven't failed more than MAX_FAILURES consecutive times."""
+    """Returns feeds that haven't failed more than MAX_FAILURES consecutive times.
+
+    Failure counts auto-reset daily so feeds get a fresh chance each day.
+    """
+    today = datetime.now().strftime("%Y-%m-%d")
     active = []
     for feed in ALL_FEEDS:
         if not validate_feed_url(feed["url"]):
             print(f"⏭️  Skipping {feed['name']} — invalid or missing URL")
             continue
         feed_state = state.get(feed["name"], {"failures": 0})
+        # Reset failure count if last failure was on a previous day
+        last_failure = feed_state.get("last_failure", "")
+        if last_failure and last_failure != today and feed_state.get("failures", 0) >= MAX_FAILURES:
+            feed_state["failures"] = 0
+            state[feed["name"]] = feed_state
+            print(f"🔄 {feed['name']} — reset failures (last failure was {last_failure})")
         if feed_state["failures"] < MAX_FAILURES:
             active.append(feed)
         else:
-            print(f"⏭️  Skipping {feed['name']} — failed {feed_state['failures']} times in a row")
+            print(f"⏭️  Skipping {feed['name']} — failed {feed_state['failures']} times today")
     return active
 
 
@@ -375,7 +390,7 @@ async def run():
         if event.is_final_response():
             print("Pipeline complete.")
 
-    session = await session_service.get_session(
+    session = session_service.get_session(
         app_name="daily_digest",
         user_id="system",
         session_id="daily_run",
