@@ -375,7 +375,7 @@ async def run():
         if event.is_final_response():
             print("Pipeline complete.")
 
-    session = await session_service.get_session(
+    session = session_service.get_session(
         app_name="daily_digest",
         user_id="system",
         session_id="daily_run",
