@@ -1,2 +1,2 @@
-google-adk>=0.3.0
-feedparser>=6.0.0
+google-adk>=0.3.0,<1.0.0
+feedparser>=6.0.0,<7.0.0

@@ -1,7 +1,9 @@
 import os
+import re
 import json
 import asyncio
 import feedparser
+from html import unescape
 from datetime import datetime
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.tools import FunctionTool
@@ -45,8 +47,8 @@ ALL_FEEDS = [
 
     # ── Tech News ─────────────────────────────────────────────────────────
     {"name": "TechCrunch_AI",      "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
-    {"name":"Stratechery",         "url":"https://stratechery.passport.online/feed/rss/9LJX5hRpMewDRXZCFh5mWU"},
-    {"name":"Asianometry",         "url":"https://asianometry.passport.online/feed/rss/9LJX5hRpMewDRXZCFh5mWU"},
+    {"name":"Stratechery",         "url": os.environ.get("STRATECHERY_FEED_URL", "")},
+    {"name":"Asianometry",         "url": os.environ.get("ASIANOMETRY_FEED_URL", "")},
     {"name": "TechCrunch",         "url": "https://techcrunch.com/feed/"},
     {"name": "The_Verge_Tech",     "url": "https://www.theverge.com/rss/index.xml"},
     {"name": "Hacker_News",        "url": "https://news.ycombinator.com/rss"},
@@ -86,6 +88,34 @@ ALL_FEEDS = [
 ]
 
 FEEDS_STATE_FILE = "feeds_state.json"
+MAX_SUMMARY_LENGTH = 200
+MAX_FAILURES = 3
+
+# ─── Security helpers ─────────────────────────────────────────────────────────
+
+def strip_html(text: str) -> str:
+    """Strips HTML tags and decodes entities to produce safe plain text."""
+    text = re.sub(r'<[^>]+>', ' ', text)       # remove all HTML tags
+    text = unescape(text)                       # decode &amp; &lt; etc.
+    text = re.sub(r'\s+', ' ', text).strip()    # collapse whitespace
+    return text
+
+
+def validate_feed_url(url: str) -> bool:
+    """Validates that a feed URL uses HTTPS and is not a local/private address."""
+    if not url:
+        return False
+    if not url.startswith("https://"):
+        return False
+    # Block common private/internal hostnames
+    blocked = ["localhost", "127.0.0.1", "0.0.0.0", "::1", "169.254.", "10.", "192.168.", "172.16."]
+    from urllib.parse import urlparse
+    hostname = urlparse(url).hostname or ""
+    for prefix in blocked:
+        if hostname.startswith(prefix) or hostname == prefix.rstrip("."):
+            return False
+    return True
+
 
 # ─── Feed state management ────────────────────────────────────────────────────
 
@@ -108,11 +138,14 @@ def save_feeds_state(state: dict):
 
 
 def get_active_feeds(state: dict) -> list:
-    """Returns feeds that haven't failed more than 3 consecutive times."""
+    """Returns feeds that haven't failed more than MAX_FAILURES consecutive times."""
     active = []
     for feed in ALL_FEEDS:
+        if not validate_feed_url(feed["url"]):
+            print(f"⏭️  Skipping {feed['name']} — invalid or missing URL")
+            continue
         feed_state = state.get(feed["name"], {"failures": 0})
-        if feed_state["failures"] < 3:
+        if feed_state["failures"] < MAX_FAILURES:
             active.append(feed)
         else:
             print(f"⏭️  Skipping {feed['name']} — failed {feed_state['failures']} times in a row")
@@ -150,9 +183,9 @@ def fetch_all_rss_feeds() -> str:
 
                 entries = []
                 for entry in feed.entries[:5]:
-                    title   = entry.get("title", "No title")
+                    title   = strip_html(entry.get("title", "No title"))
                     link    = entry.get("link", "")
-                    summary = entry.get("summary", "")[:200]
+                    summary = strip_html(entry.get("summary", ""))[:MAX_SUMMARY_LENGTH]
                     entries.append(f"  - {title}\n    {link}\n    {summary}")
 
                 section = f"[{feed_info['name']}]\n" + "\n".join(entries)
@@ -166,7 +199,7 @@ def fetch_all_rss_feeds() -> str:
             state[feed_info["name"]] = {
                 "failures": current_failures + 1,
                 "last_failure": datetime.now().strftime("%Y-%m-%d"),
-                "last_error": str(e),
+                "last_error": type(e).__name__,  # store error type only, not full message
                 "url": feed_info["url"],
             }
             failed.append(feed_info["name"])

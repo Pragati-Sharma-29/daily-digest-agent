@@ -29,6 +29,8 @@ jobs:
       - name: Run daily digest agent
         env:
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          STRATECHERY_FEED_URL: ${{ secrets.STRATECHERY_FEED_URL }}
+          ASIANOMETRY_FEED_URL: ${{ secrets.ASIANOMETRY_FEED_URL }}
         run: python agent.py
 
       - name: Upload digest as artifact
@@ -39,13 +41,27 @@ jobs:
           if-no-files-found: warn
           retention-days: 30
 
+      - name: Verify digest was generated
+        run: |
+          DIGEST_FILE="digests/digest_$(date +'%Y-%m-%d').md"
+          if [ ! -f "$DIGEST_FILE" ]; then
+            echo "::error::Digest file not found: $DIGEST_FILE"
+            exit 1
+          fi
+          FILE_SIZE=$(stat -c%s "$DIGEST_FILE")
+          if [ "$FILE_SIZE" -lt 100 ]; then
+            echo "::error::Digest file suspiciously small ($FILE_SIZE bytes)"
+            exit 1
+          fi
+          echo "Digest verified: $DIGEST_FILE ($FILE_SIZE bytes)"
+
       - name: Commit digest to repo
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add digests/ || true
           git diff --cached --quiet || git commit -m "chore: daily digest $(date +'%Y-%m-%d')"
-          git push || true
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
@@ -55,7 +71,7 @@ jobs:
           git config user.email "github-actions[bot]@users.noreply.github.com"
           git add feeds_state.json || true
           git diff --cached --quiet || git commit -m "chore: update feed health state $(date +'%Y-%m-%d')"
-          git push || true
+          git push
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 

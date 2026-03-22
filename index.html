@@ -7,6 +7,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Digest">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; connect-src https://api.github.com https://raw.githubusercontent.com; img-src 'self' data:; media-src https://raw.githubusercontent.com;">
   <link rel="manifest" href="manifest.json">
   <link rel="apple-touch-icon" href="icon-192.png">
   <title>Daily Digest</title>
@@ -602,6 +603,7 @@
   </div>
 </div>
 
+<script src="https://cdn.jsdelivr.net/npm/dompurify@3/dist/purify.min.js"></script>
 <script>
 const CONFIG_KEY = 'digest_config';
 const SPEECH_KEY = 'speech_settings';
@@ -628,12 +630,16 @@ function getSpeechSettings() {
 }
 
 function saveConfig() {
+  const safePattern = /^[a-zA-Z0-9_.\-]+$/;
   const cfg = {
     user:   document.getElementById('cfgUser').value.trim(),
     repo:   document.getElementById('cfgRepo').value.trim(),
     branch: document.getElementById('cfgBranch').value.trim() || 'main',
   };
   if (!cfg.user || !cfg.repo) return alert('Please fill in username and repo.');
+  if (!safePattern.test(cfg.user) || !safePattern.test(cfg.repo) || !safePattern.test(cfg.branch)) {
+    return alert('Invalid characters in config. Use only letters, numbers, hyphens, dots, and underscores.');
+  }
   localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
   closeConfig();
   init();
@@ -825,11 +831,21 @@ function renderDigest(markdown) {
         </div>`;
     }
   }
-  main.innerHTML = html;
+  main.innerHTML = DOMPurify.sanitize(html, { ADD_ATTR: ['target'], ALLOWED_TAGS: ['div', 'h1', 'h2', 'h3', 'ul', 'li', 'a', 'span', 'button', 'svg', 'path', 'p', 'br', 'small', 'strong', 'em'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'onclick', 'viewBox', 'd'] });
+}
+
+function escapeHtml(text) {
+  const el = document.createElement('span');
+  el.textContent = text;
+  return el.innerHTML;
 }
 
 function linkify(text) {
-  return text.replace(/\(\[([^\]]+)\]\(([^)]+)\)\)/g, '<a href="$2" target="_blank" rel="noopener">[$1]</a>');
+  text = escapeHtml(text);
+  return text.replace(/\(\[([^\]]+)\]\(([^)]+)\)\)/g, function(_, label, url) {
+    const safeUrl = url.startsWith('http') ? url : '#';
+    return '<a href="' + DOMPurify.sanitize(safeUrl) + '" target="_blank" rel="noopener">[' + label + ']</a>';
+  });
 }
 
 function stripLinks(text) {
@@ -941,7 +957,7 @@ async function loadDigest(date) {
     const [md] = await Promise.all([fetchDigestContent(cfg, date), loadAudioManifest(date)]);
     renderDigest(md);
   } catch (e) {
-    main.innerHTML = `<div class="state-box"><span class="icon">!</span>Could not load digest for ${date}<br><small>${e.message}</small></div>`;
+    main.innerHTML = `<div class="state-box"><span class="icon">!</span>Could not load digest for ${escapeHtml(date)}<br><small>${escapeHtml(e.message)}</small></div>`;
   }
 }
 
@@ -954,11 +970,11 @@ async function init() {
   try {
     const dates = await fetchDigestList(cfg);
     if (!dates.length) { main.innerHTML = '<div class="state-box"><span class="icon">!</span>No digests found in repo yet.</div>'; return; }
-    sel.innerHTML = dates.map(d => `<option value="${d}">${d}</option>`).join('');
+    sel.innerHTML = dates.filter(d => /^\d{4}-\d{2}-\d{2}$/.test(d)).map(d => `<option value="${d}">${d}</option>`).join('');
     sel.onchange = () => { stopSpeech(); loadDigest(sel.value); };
     loadDigest(dates[0]);
   } catch (e) {
-    main.innerHTML = `<div class="state-box"><span class="icon">!</span>Could not connect to GitHub<br><small>${e.message}</small></div>`;
+    main.innerHTML = `<div class="state-box"><span class="icon">!</span>Could not connect to GitHub<br><small>${escapeHtml(e.message)}</small></div>`;
     openConfig();
   }
   window.speechSynthesis.onvoiceschanged = () => {
