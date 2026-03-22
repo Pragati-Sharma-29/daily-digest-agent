@@ -842,6 +842,7 @@ function escapeHtml(text) {
 
 function linkify(text) {
   text = escapeHtml(text);
+  text = text.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
   return text.replace(/\(\[([^\]]+)\]\(([^)]+)\)\)/g, function(_, label, url) {
     const safeUrl = url.startsWith('http') ? url : '#';
     return '<a href="' + DOMPurify.sanitize(safeUrl) + '" target="_blank" rel="noopener">[' + label + ']</a>';
