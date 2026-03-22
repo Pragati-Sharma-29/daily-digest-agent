@@ -4,6 +4,18 @@ import json
 import asyncio
 import feedparser
 from html import unescape
+
+# ─── Bytes-safe JSON encoding ─────────────────────────────────────────────────
+# ADK telemetry calls json.dumps on LLM request objects that may contain bytes
+# (e.g. from protobuf fields). Patch the default encoder to handle this.
+_original_json_default = json.JSONEncoder.default
+
+def _bytes_safe_json_default(self, obj):
+    if isinstance(obj, bytes):
+        return obj.decode("utf-8", errors="replace")
+    return _original_json_default(self, obj)
+
+json.JSONEncoder.default = _bytes_safe_json_default
 from datetime import datetime
 from google.adk.agents import LlmAgent, SequentialAgent
 from google.adk.tools import FunctionTool
