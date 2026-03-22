@@ -93,8 +93,11 @@ MAX_FAILURES = 3
 
 # ─── Security helpers ─────────────────────────────────────────────────────────
 
-def strip_html(text: str) -> str:
+def strip_html(text) -> str:
     """Strips HTML tags and decodes entities to produce safe plain text."""
+    if isinstance(text, bytes):
+        text = text.decode("utf-8", errors="replace")
+    text = str(text)
     text = re.sub(r'<[^>]+>', ' ', text)       # remove all HTML tags
     text = unescape(text)                       # decode &amp; &lt; etc.
     text = re.sub(r'\s+', ' ', text).strip()    # collapse whitespace
@@ -184,7 +187,9 @@ def fetch_all_rss_feeds() -> str:
                 entries = []
                 for entry in feed.entries[:5]:
                     title   = strip_html(entry.get("title", "No title"))
-                    link    = entry.get("link", "")
+                    link    = entry.get("link", "") or ""
+                    if isinstance(link, bytes):
+                        link = link.decode("utf-8", errors="replace")
                     summary = strip_html(entry.get("summary", ""))[:MAX_SUMMARY_LENGTH]
                     entries.append(f"  - {title}\n    {link}\n    {summary}")
 
