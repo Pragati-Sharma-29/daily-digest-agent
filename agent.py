@@ -204,8 +204,10 @@ fetcher_agent = LlmAgent(
     name="rss_fetcher",
     model="gemini-3-flash-preview",
     instruction="""
-        Call fetch_all_rss_feeds to get the latest news from all RSS feeds.
-        Store the raw content in session state under key 'raw_feeds'.
+        Your ONLY job is to call the fetch_all_rss_feeds tool exactly once.
+        Do NOT call any other tool. Do NOT try to summarize, analyze, or
+        process the content. Just call fetch_all_rss_feeds and return its
+        output as-is. The only tool available to you is fetch_all_rss_feeds.
     """,
     tools=[FunctionTool(fetch_all_rss_feeds)],
     output_key="raw_feeds",
