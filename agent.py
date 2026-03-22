@@ -202,7 +202,7 @@ def save_digest(digest: str) -> str:
 
 fetcher_agent = LlmAgent(
     name="rss_fetcher",
-    model="gemini-3-flash-preview",
+    model="gemini-2.0-flash",
     instruction="""
         Your ONLY job is to call the fetch_all_rss_feeds tool exactly once.
         Do NOT call any other tool. Do NOT try to summarize, analyze, or
@@ -215,11 +215,9 @@ fetcher_agent = LlmAgent(
 
 today = datetime.now().strftime("%Y-%m-%d")
 
-today = datetime.now().strftime("%Y-%m-%d")
-
 summarizer_agent = LlmAgent(
     name="summarizer",
-    model="gemini-3-flash-preview",
+    model="gemini-2.0-flash",
     instruction=f"""
         You are a daily tech news digest writer. Read the raw RSS feed content
         from session state key 'raw_feeds' and write a comprehensive Markdown digest.
@@ -284,7 +282,7 @@ summarizer_agent = LlmAgent(
 
 saver_agent = LlmAgent(
     name="saver",
-    model="gemini-3-flash-preview",
+    model="gemini-2.0-flash",
     instruction="Retrieve the value of 'daily_digest' from session state and save it using save_digest.",
     tools=[FunctionTool(save_digest)],
 )
