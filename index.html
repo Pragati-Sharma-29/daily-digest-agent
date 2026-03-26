@@ -983,6 +983,7 @@ function renderDigest(markdown) {
   const main = document.getElementById('main');
   const lines = markdown.split('\n');
   let title = '';
+  let digestDate = '';
   let sections = [];
   let currentSection = null;
   let topStoryContent = '';
@@ -990,6 +991,11 @@ function renderDigest(markdown) {
   for (const line of lines) {
     if (line.startsWith('# ')) {
       title = line.replace('# ', '');
+      const dateMatch = title.match(/(\d{4}-\d{2}-\d{2})/);
+      if (dateMatch) {
+        const d = new Date(dateMatch[1] + 'T12:00:00');
+        digestDate = d.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+      }
     } else if (line.startsWith('## ')) {
       if (currentSection) sections.push(currentSection);
       const sectionTitle = line.replace('## ', '');
@@ -1004,7 +1010,7 @@ function renderDigest(markdown) {
 
   let html = `
     <div class="digest-header">
-      <div class="digest-date">${new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
+      <div class="digest-date">${digestDate || new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' })}</div>
       <h1 class="digest-title">${title || 'Daily Tech Digest'}</h1>
       <button class="listen-all-btn" onclick="listenAll()">
         <svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg>
