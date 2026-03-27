@@ -1022,6 +1022,7 @@ function renderDigest(markdown) {
   window.speechSegments = [];
 
   for (const section of sections) {
+    if (section.title.toLowerCase().includes('executive summary')) continue;
     if (section.isTopStory) {
       html += `<div class="top-story section"><div class="top-story-label">⭐ Top Story</div><div class="top-story-text">${linkify(topStoryContent.trim())}</div></div>`;
       window.speechSegments.push({ title: 'Top Story', text: topStoryContent.trim() });
