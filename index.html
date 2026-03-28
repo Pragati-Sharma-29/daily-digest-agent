@@ -559,35 +559,6 @@
     }
     .chat-close:hover { color: var(--text); }
 
-    .chat-api-bar {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      padding: 8px 16px;
-      border-bottom: 1px solid var(--border);
-      background: var(--bg);
-      flex-shrink: 0;
-    }
-    .chat-api-input {
-      flex: 1;
-      background: var(--bg3);
-      border: 1px solid var(--border);
-      color: var(--text);
-      font-family: var(--mono);
-      font-size: 0.65rem;
-      padding: 6px 10px;
-      border-radius: 6px;
-      outline: none;
-    }
-    .chat-api-input:focus { border-color: var(--accent); }
-    .chat-api-input::placeholder { color: var(--muted); }
-    .chat-api-status {
-      font-size: 0.6rem;
-      color: var(--muted);
-      white-space: nowrap;
-    }
-    .chat-api-status.connected { color: var(--accent2); }
-
     .chat-messages {
       flex: 1;
       overflow-y: auto;
@@ -791,10 +762,6 @@
   <div class="chat-header">
     <span class="chat-header-title">Ask about today's digest</span>
     <button class="chat-close" onclick="toggleChat()">&times;</button>
-  </div>
-  <div class="chat-api-bar" id="chatApiBar">
-    <input class="chat-api-input" id="chatApiKey" type="password" placeholder="Gemini API key" />
-    <span class="chat-api-status" id="chatApiStatus">not set</span>
   </div>
   <div class="chat-messages" id="chatMessages">
     <div class="chat-msg system">Ask follow-up questions about any story in today's digest.</div>
@@ -1210,7 +1177,7 @@ document.getElementById('configModal').addEventListener('click', function(e) { i
 document.getElementById('speechModal').addEventListener('click', function(e) { if (e.target === this) closeSpeechSettings(); });
 
 // ─── Chat ─────────────────────────────────────────────────────────────────────
-const CHAT_KEY = 'chat_gemini_key';
+const GEMINI_API_KEY = '%%GEMINI_API_KEY%%';
 let chatHistory = [];
 let currentDigestMarkdown = '';
 
@@ -1218,38 +1185,11 @@ function toggleChat() {
   const panel = document.getElementById('chatPanel');
   panel.classList.toggle('open');
   if (panel.classList.contains('open')) {
-    loadChatApiKey();
+    const sendBtn = document.getElementById('chatSend');
+    sendBtn.disabled = !GEMINI_API_KEY || GEMINI_API_KEY === '%%GEMINI_API' + '_KEY%%';
     document.getElementById('chatInput').focus();
   }
 }
-
-function loadChatApiKey() {
-  const saved = localStorage.getItem(CHAT_KEY) || '';
-  const input = document.getElementById('chatApiKey');
-  const status = document.getElementById('chatApiStatus');
-  if (saved) {
-    input.value = saved;
-    status.textContent = 'key saved';
-    status.className = 'chat-api-status connected';
-    document.getElementById('chatSend').disabled = false;
-    document.getElementById('chatApiBar').style.display = 'none';
-  }
-}
-
-document.getElementById('chatApiKey').addEventListener('input', function() {
-  const key = this.value.trim();
-  const status = document.getElementById('chatApiStatus');
-  if (key.length > 10) {
-    localStorage.setItem(CHAT_KEY, key);
-    status.textContent = 'key saved';
-    status.className = 'chat-api-status connected';
-    document.getElementById('chatSend').disabled = false;
-  } else {
-    status.textContent = 'not set';
-    status.className = 'chat-api-status';
-    document.getElementById('chatSend').disabled = true;
-  }
-});
 
 document.getElementById('chatInput').addEventListener('keydown', function(e) {
   if (e.key === 'Enter' && !e.shiftKey) {
@@ -1290,10 +1230,9 @@ async function sendChat() {
   const question = input.value.trim();
   if (!question) return;
 
-  const apiKey = localStorage.getItem(CHAT_KEY);
-  if (!apiKey) {
-    document.getElementById('chatApiBar').style.display = 'flex';
-    document.getElementById('chatApiKey').focus();
+  const apiKey = GEMINI_API_KEY;
+  if (!apiKey || apiKey === '%%GEMINI_API' + '_KEY%%') {
+    appendChatMsg('system', 'Chat is not configured. The Gemini API key needs to be set as a GitHub secret.');
     return;
   }
 
@@ -1347,9 +1286,6 @@ Instructions:
     if (!res.ok) {
       const err = await res.json().catch(() => ({}));
       const msg = err?.error?.message || `API error: ${res.status}`;
-      if (res.status === 400 || res.status === 401 || res.status === 403) {
-        document.getElementById('chatApiBar').style.display = 'flex';
-      }
       appendChatMsg('system', msg);
       chatHistory.pop();
       sendBtn.disabled = false;
