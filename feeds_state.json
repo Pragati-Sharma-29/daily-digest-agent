@@ -1,277 +1,277 @@
 {
   "a16z": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://a16z.com/feed/"
   },
   "Bessemer": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.bvp.com/atlas/rss.xml"
   },
   "Battery_Ventures": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://www.battery.com/feed/"
   },
   "Insight_Partners": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://www.insightpartners.com/feed/"
   },
   "Sapphire_Ventures": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://sapphireventures.com/feed/"
   },
   "Sequoia": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://www.sequoiacap.com/feed/"
   },
   "YL_Ventures": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://ylventures.com/feed/"
   },
   "Team8": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://team8.vc/feed/"
   },
   "NightDragon": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://nightdragon.com/feed/"
   },
   "Greylock": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://greylock.com/feed/"
   },
   "Lightspeed": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://lsvp.com/feed/"
   },
   "Redpoint": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.redpoint.com/feed/"
   },
   "First_Round_Review": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://review.firstround.com/feed.xml"
   },
   "NFX": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.nfx.com/feed"
   },
   "Madrona": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://www.madrona.com/feed/"
   },
   "Felicis": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.felicis.com/feed/"
   },
   "LangChain_Blog": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://blog.langchain.dev/rss/"
   },
   "Conviction": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.conviction.com/feed"
   },
   "OpenAI": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://openai.com/blog/rss.xml"
   },
   "Anthropic": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.anthropic.com/feed.xml"
   },
   "Google_DeepMind": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://deepmind.google/blog/rss.xml"
   },
   "Microsoft_AI": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://blogs.microsoft.com/ai/feed/"
   },
   "TechCrunch_AI": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://techcrunch.com/category/artificial-intelligence/feed/"
   },
   "Stratechery": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://stratechery.passport.online/feed/rss/9LJX5hRpMewDRXZCFh5mWU"
   },
   "Asianometry": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://asianometry.passport.online/feed/rss/9LJX5hRpMewDRXZCFh5mWU"
   },
   "TechCrunch": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://techcrunch.com/feed/"
   },
   "The_Verge_Tech": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://www.theverge.com/rss/index.xml"
   },
   "Hacker_News": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://news.ycombinator.com/rss"
   },
   "MIT_Tech_Review": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://www.technologyreview.com/feed/"
   },
   "Wired_AI": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"
   },
   "VentureBeat_AI": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://venturebeat.com/category/ai/feed/"
   },
   "Ars_Technica": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"
   },
   "GCP_AI_ML": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/"
   },
   "GCP_Vertex_AI": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/"
   },
   "Google_Research": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://research.google/blog/rss/"
   },
   "GCP_Developers": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/topics/developers-practitioners/rss/"
   },
   "GCP_Data_Analytics": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"
   },
   "GCP_BigQuery": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/bigquery/rss/"
   },
   "GCP_Dataplex": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"
   },
   "GCP_Looker": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/looker/rss/"
   },
   "GCP_Databases": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/products/databases/rss/"
   },
   "GCP_AlloyDB": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/alloydb/rss/"
   },
   "GCP_Spanner": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/products/spanner/rss/"
   },
   "GCP_Cloud_SQL": {
-    "failures": 1,
-    "last_failure": "2026-04-03",
+    "failures": 2,
+    "last_failure": "2026-04-04",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/cloud-sql/rss/"
   },
   "GCP_Blog": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/rss/"
   },
   "GCP_Inside": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://cloudblog.withgoogle.com/topics/inside-google-cloud/rss/"
   },
   "ET_Tech": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms"
   },
   "ET_AI": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://economictimes.indiatimes.com/tech/artificial-intelligence/rssfeeds/78570561.cms"
   },
   "ET_Startups": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://economictimes.indiatimes.com/tech/startups/rssfeeds/78570561.cms"
   },
   "ET_Markets": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"
   },
   "ET_Economy": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms"
   },
   "ET_IT": {
     "failures": 0,
-    "last_success": "2026-04-03",
+    "last_success": "2026-04-04",
     "url": "https://economictimes.indiatimes.com/tech/information-tech/rssfeeds/13357270.cms"
   }
 }
