@@ -991,24 +991,20 @@ function renderDigest(markdown) {
   for (const section of sections) {
     if (section.title.toLowerCase().includes('executive summary')) continue;
     if (section.title.toLowerCase().includes('top 5 stories') || section.title.toLowerCase().includes('top stories today')) continue;
-    if (section.isTopStory) {
-      html += `<div class="top-story section"><div class="top-story-label">⭐ Top Story</div><div class="top-story-text">${linkify(topStoryContent.trim())}</div></div>`;
-      window.speechSegments.push({ title: 'Top Story', text: topStoryContent.trim() });
-    } else {
-      window.speechSegments.push({ title: section.title, text: section.bullets.map(b => stripLinks(b)).join('. ') });
-      html += `
-        <div class="section">
-          <div class="section-header">
-            <h2 class="section-title">${section.title}</h2>
-            <button class="section-listen" onclick="listenSection(${sections.indexOf(section)})">
-              <svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg> listen
-            </button>
-          </div>
-          <ul class="bullets">
-            ${section.bullets.map(b => `<li class="bullet"><span class="bullet-dot">▸</span><span>${linkify(b)}</span></li>`).join('')}
-          </ul>
-        </div>`;
-    }
+    if (section.isTopStory) continue;
+    window.speechSegments.push({ title: section.title, text: section.bullets.map(b => stripLinks(b)).join('. ') });
+    html += `
+      <div class="section">
+        <div class="section-header">
+          <h2 class="section-title">${section.title}</h2>
+          <button class="section-listen" onclick="listenSection(${sections.indexOf(section)})">
+            <svg viewBox="0 0 16 16"><path d="M4 2l10 6-10 6V2z"/></svg> listen
+          </button>
+        </div>
+        <ul class="bullets">
+          ${section.bullets.map(b => `<li class="bullet"><span class="bullet-dot">▸</span><span>${linkify(b)}</span></li>`).join('')}
+        </ul>
+      </div>`;
   }
   main.innerHTML = DOMPurify.sanitize(html, { ADD_ATTR: ['target'], ALLOWED_TAGS: ['div', 'h1', 'h2', 'h3', 'ul', 'li', 'a', 'span', 'button', 'svg', 'path', 'p', 'br', 'small', 'strong', 'em'], ALLOWED_ATTR: ['href', 'target', 'rel', 'class', 'onclick', 'viewBox', 'd'] });
 }
