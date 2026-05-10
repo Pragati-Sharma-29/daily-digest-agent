@@ -5,7 +5,7 @@ import asyncio
 import warnings
 import feedparser
 from html import unescape
-from datetime import datetime
+from datetime import datetime, timedelta
 
 # ─── Suppress known harmless warnings ─────────────────────────────────────────
 warnings.filterwarnings("ignore", message=".*non-text parts in the response.*")
@@ -121,6 +121,19 @@ def strip_html(text) -> str:
     return text
 
 
+def is_entry_recent(entry, max_age_days: int = 2) -> bool:
+    """Returns True if the feed entry was published within the last max_age_days days."""
+    cutoff = datetime.now() - timedelta(days=max_age_days)
+    published = entry.get("published_parsed") or entry.get("updated_parsed")
+    if published:
+        try:
+            entry_dt = datetime(*published[:6])
+            return entry_dt >= cutoff
+        except (TypeError, ValueError):
+            pass
+    return True
+
+
 def validate_feed_url(url: str) -> bool:
     """Validates that a feed URL uses HTTPS and is not a local/private address."""
     if not url:
@@ -211,8 +224,9 @@ def fetch_all_rss_feeds() -> str:
                 working.append(feed_info["name"])
                 print(f"✅ {feed_info['name']} — {len(feed.entries)} entries")
 
+                recent_entries = [e for e in feed.entries if is_entry_recent(e)]
                 entries = []
-                for entry in feed.entries[:5]:
+                for entry in recent_entries[:5]:
                     title   = strip_html(entry.get("title", "No title"))
                     link    = entry.get("link", "") or ""
                     if isinstance(link, bytes):
@@ -297,10 +311,6 @@ summarizer_agent = LlmAgent(
         industry? Make it compelling and opinionated — this is the first thing the
         reader sees.
 
-        ## Top 5 Stories Today
-        Pick the 5 most significant individual stories across all sources. For each:
-        - **[Story headline]** — One sentence summary of why it matters. ([Source](url))
-
         ## [Topic Name e.g. "Agentic AI"]
 
         ### What happened
@@ -328,13 +338,8 @@ summarizer_agent = LlmAgent(
         ### What to watch
         ...
 
-        ## Top Story
-        A 3-4 sentence deep dive on the single most important story of the day.
-        Include what happened, who is involved, why it matters, and what comes next.
-        Link to the source.
-
         IMPORTANT RULES:
-        - Always start with Executive Summary and Top 5 Stories
+        - Always start with Executive Summary
         - Aim for 6-10 topic sections — cover ALL major themes from the feeds
         - Every topic MUST have all three subsections: What happened, Key stories, What to watch
         - Each Key story bullet must be 2-3 sentences — not just a headline
