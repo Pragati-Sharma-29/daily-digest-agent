@@ -28,7 +28,7 @@ jobs:
 
       - name: Run daily digest agent
         env:
-          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           STRATECHERY_FEED_URL: ${{ secrets.STRATECHERY_FEED_URL }}
           ASIANOMETRY_FEED_URL: ${{ secrets.ASIANOMETRY_FEED_URL }}
         run: python agent.py

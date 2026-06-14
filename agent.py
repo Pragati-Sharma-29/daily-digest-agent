@@ -1,34 +1,12 @@
 import os
 import re
 import json
-import asyncio
-import warnings
 import feedparser
+import anthropic
 from html import unescape
 from datetime import datetime, timedelta
+from urllib.parse import urlparse
 
-# ─── Suppress known harmless warnings ─────────────────────────────────────────
-warnings.filterwarnings("ignore", message=".*non-text parts in the response.*")
-warnings.filterwarnings("ignore", message=".*google-cloud-storage.*")
-
-# ─── Bytes-safe JSON encoding ─────────────────────────────────────────────────
-# ADK telemetry calls json.dumps on LLM request objects that may contain bytes
-# (e.g. from protobuf fields). Patch the default encoder to handle this.
-_original_json_default = json.JSONEncoder.default
-
-def _bytes_safe_json_default(self, obj):
-    if isinstance(obj, bytes):
-        return obj.decode("utf-8", errors="replace")
-    return _original_json_default(self, obj)
-
-json.JSONEncoder.default = _bytes_safe_json_default
-from google.adk.agents import LlmAgent, SequentialAgent
-from google.adk.tools import FunctionTool
-from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from google.genai import types
-
-# ─── Master feed list ─────────────────────────────────────────────────────────
 ALL_FEEDS = [
     # ── Enterprise & B2B SaaS ──────────────────────────────────────────────
     {"name": "a16z",               "url": "https://a16z.com/feed/"},
@@ -64,8 +42,8 @@ ALL_FEEDS = [
 
     # ── Tech News ─────────────────────────────────────────────────────────
     {"name": "TechCrunch_AI",      "url": "https://techcrunch.com/category/artificial-intelligence/feed/"},
-    {"name":"Stratechery",         "url": os.environ.get("STRATECHERY_FEED_URL", "")},
-    {"name":"Asianometry",         "url": os.environ.get("ASIANOMETRY_FEED_URL", "")},
+    {"name": "Stratechery",        "url": os.environ.get("STRATECHERY_FEED_URL", "")},
+    {"name": "Asianometry",        "url": os.environ.get("ASIANOMETRY_FEED_URL", "")},
     {"name": "TechCrunch",         "url": "https://techcrunch.com/feed/"},
     {"name": "The_Verge_Tech",     "url": "https://www.theverge.com/rss/index.xml"},
     {"name": "Hacker_News",        "url": "https://news.ycombinator.com/rss"},
@@ -74,28 +52,29 @@ ALL_FEEDS = [
     {"name": "VentureBeat_AI",     "url": "https://venturebeat.com/category/ai/feed/"},
     {"name": "Ars_Technica",       "url": "https://feeds.arstechnica.com/arstechnica/technology-lab"},
 
-    # ── GCP AI & Machine Learning ─────────────────────────────────────────────
+    # ── GCP AI & Machine Learning ─────────────────────────────────────────
     {"name": "GCP_AI_ML",           "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/"},
     {"name": "GCP_Vertex_AI",       "url": "https://cloudblog.withgoogle.com/products/ai-machine-learning/rss/"},
     {"name": "Google_Research",     "url": "https://research.google/blog/rss/"},
     {"name": "GCP_Developers",      "url": "https://cloudblog.withgoogle.com/topics/developers-practitioners/rss/"},
 
-    # ── GCP Data Analytics ────────────────────────────────────────────────────
+    # ── GCP Data Analytics ────────────────────────────────────────────────
     {"name": "GCP_Data_Analytics",  "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"},
     {"name": "GCP_BigQuery",        "url": "https://cloudblog.withgoogle.com/products/bigquery/rss/"},
     {"name": "GCP_Dataplex",        "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"},
     {"name": "GCP_Looker",          "url": "https://cloudblog.withgoogle.com/products/looker/rss/"},
 
-    # ── GCP Databases ─────────────────────────────────────────────────────────
+    # ── GCP Databases ─────────────────────────────────────────────────────
     {"name": "GCP_Databases",       "url": "https://cloudblog.withgoogle.com/products/databases/rss/"},
     {"name": "GCP_AlloyDB",         "url": "https://cloudblog.withgoogle.com/products/alloydb/rss/"},
     {"name": "GCP_Spanner",         "url": "https://cloudblog.withgoogle.com/products/spanner/rss/"},
     {"name": "GCP_Cloud_SQL",       "url": "https://cloudblog.withgoogle.com/products/cloud-sql/rss/"},
 
-    # ── GCP General ───────────────────────────────────────────────────────────
+    # ── GCP General ───────────────────────────────────────────────────────
     {"name": "GCP_Blog",            "url": "https://cloudblog.withgoogle.com/rss/"},
     {"name": "GCP_Inside",          "url": "https://cloudblog.withgoogle.com/topics/inside-google-cloud/rss/"},
-    # ── Economic Times ────────────────────────────────────────────────────────
+
+    # ── Economic Times ────────────────────────────────────────────────────
     {"name": "ET_Tech",             "url": "https://economictimes.indiatimes.com/tech/rssfeeds/13357270.cms"},
     {"name": "ET_AI",               "url": "https://economictimes.indiatimes.com/tech/artificial-intelligence/rssfeeds/78570561.cms"},
     {"name": "ET_Startups",         "url": "https://economictimes.indiatimes.com/tech/startups/rssfeeds/78570561.cms"},
@@ -108,21 +87,18 @@ FEEDS_STATE_FILE = "feeds_state.json"
 MAX_SUMMARY_LENGTH = 200
 MAX_FAILURES = 3
 
-# ─── Security helpers ─────────────────────────────────────────────────────────
 
 def strip_html(text) -> str:
-    """Strips HTML tags and decodes entities to produce safe plain text."""
     if isinstance(text, bytes):
         text = text.decode("utf-8", errors="replace")
     text = str(text)
-    text = re.sub(r'<[^>]+>', ' ', text)       # remove all HTML tags
-    text = unescape(text)                       # decode &amp; &lt; etc.
-    text = re.sub(r'\s+', ' ', text).strip()    # collapse whitespace
+    text = re.sub(r'<[^>]+>', ' ', text)
+    text = unescape(text)
+    text = re.sub(r'\s+', ' ', text).strip()
     return text
 
 
 def is_entry_recent(entry, max_age_days: int = 2) -> bool:
-    """Returns True if the feed entry was published within the last max_age_days days."""
     cutoff = datetime.now() - timedelta(days=max_age_days)
     published = entry.get("published_parsed") or entry.get("updated_parsed")
     if published:
@@ -135,14 +111,11 @@ def is_entry_recent(entry, max_age_days: int = 2) -> bool:
 
 
 def validate_feed_url(url: str) -> bool:
-    """Validates that a feed URL uses HTTPS and is not a local/private address."""
     if not url:
         return False
     if not url.startswith("https://"):
         return False
-    # Block common private/internal hostnames
     blocked = ["localhost", "127.0.0.1", "0.0.0.0", "::1", "169.254.", "10.", "192.168.", "172.16."]
-    from urllib.parse import urlparse
     hostname = urlparse(url).hostname or ""
     for prefix in blocked:
         if hostname.startswith(prefix) or hostname == prefix.rstrip("."):
@@ -150,10 +123,7 @@ def validate_feed_url(url: str) -> bool:
     return True
 
 
-# ─── Feed state management ────────────────────────────────────────────────────
-
 def load_feeds_state() -> dict:
-    """Loads feed health state from JSON file."""
     if os.path.exists(FEEDS_STATE_FILE):
         with open(FEEDS_STATE_FILE, "r") as f:
             return json.load(f)
@@ -161,7 +131,6 @@ def load_feeds_state() -> dict:
 
 
 def save_feeds_state(state: dict):
-    """Saves feed health state to JSON file."""
     try:
         with open(FEEDS_STATE_FILE, "w") as f:
             json.dump(state, f, indent=2)
@@ -171,10 +140,6 @@ def save_feeds_state(state: dict):
 
 
 def get_active_feeds(state: dict) -> list:
-    """Returns feeds that haven't failed more than MAX_FAILURES consecutive times.
-
-    Failure counts auto-reset daily so feeds get a fresh chance each day.
-    """
     today = datetime.now().strftime("%Y-%m-%d")
     active = []
     for feed in ALL_FEEDS:
@@ -182,7 +147,6 @@ def get_active_feeds(state: dict) -> list:
             print(f"⏭️  Skipping {feed['name']} — invalid or missing URL")
             continue
         feed_state = state.get(feed["name"], {"failures": 0})
-        # Reset failure count if last failure was on a previous day
         last_failure = feed_state.get("last_failure", "")
         if last_failure and last_failure != today and feed_state.get("failures", 0) >= MAX_FAILURES:
             feed_state["failures"] = 0
@@ -195,14 +159,7 @@ def get_active_feeds(state: dict) -> list:
     return active
 
 
-# ─── Tools ────────────────────────────────────────────────────────────────────
-
 def fetch_all_rss_feeds() -> str:
-    """Tests and fetches all active RSS feeds, updating health state.
-
-    Returns:
-        Combined content from all working feeds.
-    """
     state = load_feeds_state()
     active_feeds = get_active_feeds(state)
     all_content = []
@@ -245,7 +202,7 @@ def fetch_all_rss_feeds() -> str:
             state[feed_info["name"]] = {
                 "failures": current_failures + 1,
                 "last_failure": datetime.now().strftime("%Y-%m-%d"),
-                "last_error": type(e).__name__,  # store error type only, not full message
+                "last_error": type(e).__name__,
                 "url": feed_info["url"],
             }
             failed.append(feed_info["name"])
@@ -263,158 +220,100 @@ def fetch_all_rss_feeds() -> str:
 
     save_feeds_state(state)
 
-    return "\n\n".join(all_content) if all_content else "No feed content available."
+    return "\n\n".join(all_content) if all_content else ""
+
+
+def summarize_with_claude(raw_feeds: str) -> str:
+    today = datetime.now().strftime("%Y-%m-%d")
+
+    client = anthropic.Anthropic()
+
+    message = client.messages.create(
+        model="claude-sonnet-4-6-20250514",
+        max_tokens=8192,
+        system=f"""You are a daily tech news digest writer. You will receive raw RSS feed
+content and must write a comprehensive Markdown digest.
+
+Use this EXACT format in this EXACT order:
+
+# Daily Tech Digest — {today}
+
+## Executive Summary
+Write 4-6 sentences synthesizing the single most important theme of the day
+across ALL sources. What is the dominant story? What does it mean for the
+industry? Make it compelling and opinionated.
+
+## [Topic Name e.g. "Agentic AI"]
+
+### What happened
+2-3 sentences summarizing the key developments in this topic today across
+all sources. Synthesize — do not list sources separately.
+
+### Key stories
+- **[Story headline]** — Detailed 2-3 sentence explanation of what happened,
+  why it matters, and what the implications are for the industry. ([Source](url))
+- **[Story headline]** — Detailed 2-3 sentence explanation. ([Source](url))
+- **[Story headline]** — Detailed 2-3 sentence explanation. ([Source](url))
+
+### What to watch
+1-2 sentences on what to follow next in this topic — upcoming announcements,
+open questions, or trends to monitor.
+
+## [Next Topic e.g. "Enterprise Security"]
+
+### What happened
+...
+
+### Key stories
+...
+
+### What to watch
+...
+
+IMPORTANT RULES:
+- Always start with Executive Summary
+- Aim for 6-10 topic sections — cover ALL major themes from the feeds
+- Every topic MUST have all three subsections: What happened, Key stories, What to watch
+- Each Key story bullet must be 2-3 sentences — not just a headline
+- Every story must end with a source link ([Source Name](url))
+- Do NOT organize by source — group strictly by theme across all sources
+- Be thorough — if the feeds have content, capture it. Depth over brevity here.""",
+        messages=[
+            {"role": "user", "content": f"Here is today's raw RSS feed content. Write the daily digest.\n\n{raw_feeds}"}
+        ],
+    )
+
+    return message.content[0].text
 
 
 def save_digest(digest: str) -> str:
-    """Saves the daily digest to a Markdown file."""
     os.makedirs("digests", exist_ok=True)
     date_str = datetime.now().strftime("%Y-%m-%d")
     filename = f"digests/digest_{date_str}.md"
     with open(filename, "w", encoding="utf-8") as f:
         f.write(digest)
     print(f"Digest saved to {filename}")
-    return f"Digest saved to {filename}"
+    return filename
 
 
-# ─── Agents ───────────────────────────────────────────────────────────────────
-
-fetcher_agent = LlmAgent(
-    name="rss_fetcher",
-    model="gemini-2.5-flash",
-    instruction="""
-        Your ONLY job is to call the fetch_all_rss_feeds tool exactly once.
-        Do NOT call any other tool. Do NOT try to summarize, analyze, or
-        process the content. Just call fetch_all_rss_feeds and return its
-        output as-is. The only tool available to you is fetch_all_rss_feeds.
-    """,
-    tools=[FunctionTool(fetch_all_rss_feeds)],
-    output_key="raw_feeds",
-)
-
-today = datetime.now().strftime("%Y-%m-%d")
-
-summarizer_agent = LlmAgent(
-    name="summarizer",
-    model="gemini-2.5-flash",
-    instruction=f"""
-        You are a daily tech news digest writer. Read the raw RSS feed content
-        from session state key 'raw_feeds' and write a comprehensive Markdown digest.
-
-        Use this EXACT format in this EXACT order:
-
-        # Daily Tech Digest — {today}
-
-        ## Executive Summary
-        Write 4-6 sentences synthesizing the single most important theme of the day
-        across ALL sources. What is the dominant story? What does it mean for the
-        industry? Make it compelling and opinionated — this is the first thing the
-        reader sees.
-
-        ## [Topic Name e.g. "Agentic AI"]
-
-        ### What happened
-        2-3 sentences summarizing the key developments in this topic today across
-        all sources. Synthesize — do not list sources separately.
-
-        ### Key stories
-        - **[Story headline]** — Detailed 2-3 sentence explanation of what happened,
-          why it matters, and what the implications are for the industry. ([Source](url))
-        - **[Story headline]** — Detailed 2-3 sentence explanation. ([Source](url))
-        - **[Story headline]** — Detailed 2-3 sentence explanation. ([Source](url))
-
-        ### What to watch
-        1-2 sentences on what to follow next in this topic — upcoming announcements,
-        open questions, or trends to monitor.
-
-        ## [Next Topic e.g. "Enterprise Security"]
-
-        ### What happened
-        ...
-
-        ### Key stories
-        ...
-
-        ### What to watch
-        ...
-
-        IMPORTANT RULES:
-        - Always start with Executive Summary
-        - Aim for 6-10 topic sections — cover ALL major themes from the feeds
-        - Every topic MUST have all three subsections: What happened, Key stories, What to watch
-        - Each Key story bullet must be 2-3 sentences — not just a headline
-        - Every story must end with a source link ([Source Name](url))
-        - Do NOT organize by source — group strictly by theme across all sources
-        - Be thorough — if the feeds have content, capture it. Depth over brevity here.
-    """,
-    output_key="daily_digest",
-)
-
-saver_agent = LlmAgent(
-    name="saver",
-    model="gemini-2.5-flash",
-    instruction="Retrieve the value of 'daily_digest' from session state and save it using save_digest.",
-    tools=[FunctionTool(save_digest)],
-)
-
-# ─── Pipeline ─────────────────────────────────────────────────────────────────
-
-root_agent = SequentialAgent(
-    name="daily_digest_pipeline",
-    sub_agents=[fetcher_agent, summarizer_agent, saver_agent],
-)
-
-# ─── Runner ───────────────────────────────────────────────────────────────────
-
-async def run():
+def main():
     print(f"Starting pipeline — {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-    session_service = InMemorySessionService()
-    session_service.create_session(
-        app_name="daily_digest",
-        user_id="system",
-        session_id="daily_run",
-    )
+    print("\n── Step 1: Fetching RSS feeds ──")
+    raw_feeds = fetch_all_rss_feeds()
 
-    runner = Runner(
-        agent=root_agent,
-        app_name="daily_digest",
-        session_service=session_service,
-    )
+    if not raw_feeds:
+        print("ERROR: No feed content available. Exiting.")
+        raise SystemExit(1)
 
-    content = types.Content(
-        role="user",
-        parts=[types.Part(text="Run the daily digest pipeline now.")],
-    )
+    print(f"\n── Step 2: Summarizing with Claude ({len(raw_feeds)} chars) ──")
+    digest = summarize_with_claude(raw_feeds)
 
-    async for event in runner.run_async(
-        user_id="system",
-        session_id="daily_run",
-        new_message=content,
-    ):
-        if event.is_final_response():
-            print("Pipeline complete.")
+    print(f"\n── Step 3: Saving digest ({len(digest)} chars) ──")
+    save_digest(digest)
 
-    session = session_service.get_session(
-        app_name="daily_digest",
-        user_id="system",
-        session_id="daily_run",
-    )
-
-    digest = session.state.get("daily_digest", "")
-    raw_feeds = session.state.get("raw_feeds", "")
-
-    print(f"Session state keys: {list(session.state.keys())}")
-
-    if digest:
-        save_digest(digest)
-        print("Digest saved from session state.")
-    elif raw_feeds:
-        save_digest(f"# Daily Digest — {today}\n\n{raw_feeds}")
-        print("Saved raw feeds as fallback.")
-    else:
-        print("WARNING: No content found in session state.")
+    print("\nPipeline complete.")
 
 
 if __name__ == "__main__":
-    asyncio.run(run())
+    main()
