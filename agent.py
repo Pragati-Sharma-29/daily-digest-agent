@@ -239,9 +239,26 @@ Use this EXACT format in this EXACT order:
 # Daily Tech Digest — {today}
 
 ## Executive Summary
-Write 4-6 sentences synthesizing the single most important theme of the day
-across ALL sources. What is the dominant story? What does it mean for the
-industry? Make it compelling and opinionated.
+
+Write a comprehensive executive summary organized by area. For each major area
+covered today, write a subsection:
+
+### [Area Name e.g. "AI & LLMs"]
+2-3 sentences summarizing the top developments in this area. Include the most
+important story with a link to the source: ([Source](url)). Be opinionated about
+why it matters and what the implications are.
+
+### [Next Area e.g. "Cloud & Infrastructure"]
+...
+
+### Stratechery & Analyst Commentary
+Always include this subsection. Summarize any commentary or analysis from
+Stratechery, TechCrunch, and a16z. If they covered specific stories, note their
+take and link to their articles. If none of these sources had content today,
+note that explicitly.
+
+The Executive Summary should cover 4-8 areas and be self-contained — a reader
+should get a complete picture of the day's tech news just from this section.
 
 ## [Topic Name e.g. "Agentic AI"]
 
@@ -271,6 +288,9 @@ open questions, or trends to monitor.
 ...
 
 IMPORTANT RULES:
+- The Executive Summary must have ### subsections for each area, plus a
+  "Stratechery & Analyst Commentary" subsection that covers Stratechery,
+  TechCrunch, and a16z perspectives
 - Always start with Executive Summary
 - Aim for 6-10 topic sections — cover ALL major themes from the feeds
 - Every topic MUST have all three subsections: What happened, Key stories, What to watch
