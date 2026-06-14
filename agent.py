@@ -229,7 +229,7 @@ def summarize_with_claude(raw_feeds: str) -> str:
     client = anthropic.Anthropic()
 
     message = client.messages.create(
-        model="claude-sonnet-4-6-20250514",
+        model="claude-sonnet-4-6",
         max_tokens=8192,
         system=f"""You are a daily tech news digest writer. You will receive raw RSS feed
 content and must write a comprehensive Markdown digest.
@@ -307,7 +307,11 @@ def main():
         raise SystemExit(1)
 
     print(f"\n── Step 2: Summarizing with Claude ({len(raw_feeds)} chars) ──")
-    digest = summarize_with_claude(raw_feeds)
+    try:
+        digest = summarize_with_claude(raw_feeds)
+    except Exception as e:
+        print(f"ERROR: Claude API call failed: {type(e).__name__}: {e}")
+        raise
 
     print(f"\n── Step 3: Saving digest ({len(digest)} chars) ──")
     save_digest(digest)
