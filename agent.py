@@ -81,6 +81,18 @@ ALL_FEEDS = [
     {"name": "ET_Markets",          "url": "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"},
     {"name": "ET_Economy",          "url": "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms"},
     {"name": "ET_IT",               "url": "https://economictimes.indiatimes.com/tech/information-tech/rssfeeds/13357270.cms"},
+    # ── Andrej Karpathy ────────────────────────────────────────────────────
+    {"name": "Andrej_Karpathy",     "url": "https://karpathy.github.io/feed.xml"},
+    # ── Cybersecurity (Rubrik, Okta & Industry) ───────────────────────────
+    {"name": "Rubrik_Blog",         "url": "https://www.rubrik.com/blog/feed"},
+    {"name": "Okta_Blog",           "url": "https://www.okta.com/blog/feed/"},
+    {"name": "The_Hacker_News",     "url": "https://feeds.feedburner.com/TheHackersNews"},
+    {"name": "Krebs_On_Security",   "url": "https://krebsonsecurity.com/feed/"},
+    {"name": "Dark_Reading",        "url": "https://www.darkreading.com/rss.xml"},
+    {"name": "BleepingComputer",    "url": "https://www.bleepingcomputer.com/feed/"},
+    # ── SaaS ────────────────────────────────────────────────────────────────
+    {"name": "SaaStr",              "url": "https://www.saastr.com/feed/"},
+    {"name": "Tomasz_Tunguz",       "url": "https://tomtunguz.com/index.xml"},
 ]
 
 FEEDS_STATE_FILE = "feeds_state.json"
