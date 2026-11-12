@@ -868,8 +868,7 @@ function renderDigest(markdown) {
   let digestDate = '';
   let sections = [];
   let currentSection = null;
-  let execSummaryLines = [];
-  let inExecSummary = false;
+  let inRawSection = false;
 
   for (const line of lines) {
     if (line.startsWith('# ') && !line.startsWith('## ')) {
@@ -882,9 +881,10 @@ function renderDigest(markdown) {
     } else if (line.startsWith('## ')) {
       if (currentSection) sections.push(currentSection);
       const sectionTitle = line.replace('## ', '');
-      inExecSummary = sectionTitle.toLowerCase().includes('executive summary');
-      currentSection = { title: sectionTitle, bullets: [], rawLines: [], isTopStory: sectionTitle.toLowerCase().includes('top story') };
-    } else if (inExecSummary && currentSection) {
+      const lowerTitle = sectionTitle.toLowerCase();
+      inRawSection = lowerTitle.includes('executive summary') || lowerTitle.includes('launches');
+      currentSection = { title: sectionTitle, bullets: [], rawLines: [], isTopStory: lowerTitle.includes('top story') };
+    } else if (inRawSection && currentSection) {
       currentSection.rawLines.push(line);
     } else if (line.startsWith('- ') && currentSection) {
       currentSection.bullets.push(line.replace(/^- /, ''));
@@ -896,28 +896,32 @@ function renderDigest(markdown) {
   }
   if (currentSection) sections.push(currentSection);
 
-  const execSection = sections.find(s => s.title.toLowerCase().includes('executive summary'));
-  const contentSections = sections.filter(s =>
-    !s.title.toLowerCase().includes('executive summary') &&
-    !s.title.toLowerCase().includes('top 5 stories') &&
-    !s.title.toLowerCase().includes('top stories today') &&
-    !s.isTopStory
-  );
-
-  let execHtml = '';
-  if (execSection) {
-    let raw = execSection.rawLines.join('\n');
+  function buildRawHtml(rawLines) {
+    let raw = rawLines.join('\n');
     raw = linkify(raw);
     raw = raw.replace(/^### (.+)$/gm, '<h3>$1</h3>');
     raw = raw.replace(/^- (.+)$/gm, '<li>$1</li>');
     raw = raw.replace(/((?:<li>.*<\/li>\n?)+)/g, '<ul>$1</ul>');
     const paragraphs = raw.split(/\n{2,}/);
-    execHtml = paragraphs.map(p => {
+    return paragraphs.map(p => {
       p = p.trim();
       if (!p || p.startsWith('<h3>') || p.startsWith('<ul>')) return p;
       return '<p>' + p.replace(/\n/g, ' ') + '</p>';
     }).join('\n');
   }
+
+  const execSection = sections.find(s => s.title.toLowerCase().includes('executive summary'));
+  const launchesSection = sections.find(s => s.title.toLowerCase().includes('launches'));
+  const contentSections = sections.filter(s =>
+    !s.title.toLowerCase().includes('executive summary') &&
+    !s.title.toLowerCase().includes('launches') &&
+    !s.title.toLowerCase().includes('top 5 stories') &&
+    !s.title.toLowerCase().includes('top stories today') &&
+    !s.isTopStory
+  );
+
+  const execHtml = execSection ? buildRawHtml(execSection.rawLines) : '';
+  const launchesHtml = launchesSection ? buildRawHtml(launchesSection.rawLines) : '';
 
   let html = `
     <div class="digest-header">
@@ -930,10 +934,14 @@ function renderDigest(markdown) {
     </div>
     <div class="tab-bar">
       <button class="tab-btn active" onclick="switchTab('summary', this)">Executive Summary</button>
+      <button class="tab-btn" onclick="switchTab('launches', this)">Launches</button>
       <button class="tab-btn" onclick="switchTab('full', this)">Full Digest</button>
     </div>
     <div class="tab-content active" id="tab-summary">
       <div class="exec-summary">${execHtml || '<p style="color:var(--muted)">No executive summary available for this digest.</p>'}</div>
+    </div>
+    <div class="tab-content" id="tab-launches">
+      <div class="exec-summary">${launchesHtml || '<p style="color:var(--muted)">No launches tracked for this digest.</p>'}</div>
     </div>
     <div class="tab-content" id="tab-full">
   `;
