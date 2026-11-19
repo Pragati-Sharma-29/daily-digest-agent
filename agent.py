@@ -81,6 +81,31 @@ ALL_FEEDS = [
     {"name": "ET_Markets",          "url": "https://economictimes.indiatimes.com/markets/rssfeeds/1977021501.cms"},
     {"name": "ET_Economy",          "url": "https://economictimes.indiatimes.com/news/economy/rssfeeds/1373380680.cms"},
     {"name": "ET_IT",               "url": "https://economictimes.indiatimes.com/tech/information-tech/rssfeeds/13357270.cms"},
+    # ── Andrej Karpathy ────────────────────────────────────────────────────
+    {"name": "Andrej_Karpathy",     "url": "https://karpathy.github.io/feed.xml"},
+    # ── Cybersecurity (Rubrik, Okta & Industry) ───────────────────────────
+    {"name": "Rubrik_Blog",         "url": "https://www.rubrik.com/blog/feed"},
+    {"name": "Okta_Blog",           "url": "https://www.okta.com/blog/feed/"},
+    {"name": "The_Hacker_News",     "url": "https://feeds.feedburner.com/TheHackersNews"},
+    {"name": "Krebs_On_Security",   "url": "https://krebsonsecurity.com/feed/"},
+    {"name": "Dark_Reading",        "url": "https://www.darkreading.com/rss.xml"},
+    {"name": "BleepingComputer",    "url": "https://www.bleepingcomputer.com/feed/"},
+    # ── SaaS ────────────────────────────────────────────────────────────────
+    {"name": "SaaStr",              "url": "https://www.saastr.com/feed/"},
+    {"name": "Tomasz_Tunguz",       "url": "https://tomtunguz.com/index.xml"},
+    # ── Hyperscalers (Azure & AWS) ──────────────────────────────────────────
+    {"name": "Azure_Blog",          "url": "https://azure.microsoft.com/en-us/blog/feed/"},
+    {"name": "AWS_News_Blog",       "url": "https://aws.amazon.com/blogs/aws/feed/"},
+    {"name": "AWS_Big_Data",        "url": "https://aws.amazon.com/blogs/big-data/feed/"},
+    # ── Data Platforms & Meta ───────────────────────────────────────────────
+    {"name": "Databricks_Blog",     "url": "https://www.databricks.com/feed"},
+    {"name": "Snowflake_Blog",      "url": "https://www.snowflake.com/blog/feed/"},
+    {"name": "Meta_AI_Blog",        "url": "https://ai.meta.com/blog/rss/"},
+    {"name": "Meta_Engineering",    "url": "https://engineering.fb.com/feed/"},
+    {"name": "Atlan_Blog",          "url": "https://atlan.com/feed/"},
+    # ── Grab & OGP ───────────────────────────────────────────────────────────
+    {"name": "Grab_Engineering",    "url": "https://engineering.grab.com/feed.xml"},
+    {"name": "OGP_Blog",            "url": "https://www.open.gov.sg/index.xml"},
 ]
 
 FEEDS_STATE_FILE = "feeds_state.json"
@@ -260,6 +285,32 @@ note that explicitly.
 The Executive Summary should cover 4-8 areas and be self-contained — a reader
 should get a complete picture of the day's tech news just from this section.
 
+## Launches
+
+Track NEW product launches, feature releases, GA announcements, and major
+product updates ONLY — not general commentary, opinion pieces, or funding
+news (those belong in the topic sections below). Use these exact four
+subsections, in this order:
+
+### AI Labs
+Launches from Anthropic, OpenAI, Google DeepMind, Microsoft AI, Meta AI, and
+any other AI labs. One bullet per launch: **[Launch name]** — 1-2 sentence
+description of what shipped and why it matters. ([Source](url)). If none of
+these sources announced a launch today, state that explicitly.
+
+### Hyperscaler Enterprise SaaS & Data Platforms
+Launches from GCP, Azure, and AWS. Same bullet format. If none of these
+sources announced a launch today, state that explicitly.
+
+### Databricks, Snowflake, Meta, Rubrik & Atlan
+Launches from these five companies specifically. Same bullet format. If none
+of these sources announced a launch today, state that explicitly.
+
+### Grab & OGP
+Launches from Grab and Singapore's Open Government Products (OGP). Same
+bullet format. If none of these sources announced a launch today, state that
+explicitly.
+
 ## [Topic Name e.g. "Agentic AI"]
 
 ### What happened
@@ -291,7 +342,11 @@ IMPORTANT RULES:
 - The Executive Summary must have ### subsections for each area, plus a
   "Stratechery & Analyst Commentary" subsection that covers Stratechery,
   TechCrunch, and a16z perspectives
-- Always start with Executive Summary
+- The Launches section must have exactly the four ### subsections specified
+  above, in that order, and must cover ONLY new launches/releases/GA
+  announcements — explicitly say "No new launches today" for any subsection
+  with nothing to report, rather than omitting it
+- Always start with Executive Summary, then Launches, then the topic sections
 - Aim for 6-10 topic sections — cover ALL major themes from the feeds
 - Every topic MUST have all three subsections: What happened, Key stories, What to watch
 - Each Key story bullet must be 2-3 sentences — not just a headline
