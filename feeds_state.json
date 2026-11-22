@@ -1,12 +1,12 @@
 {
   "a16z": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://a16z.com/feed/"
   },
   "Bessemer": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.bvp.com/atlas/rss.xml"
@@ -22,7 +22,7 @@
     "url": "https://www.insightpartners.com/feed/"
   },
   "Sapphire_Ventures": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://sapphireventures.com/feed/"
@@ -59,19 +59,19 @@
     "url": "https://lsvp.com/feed/"
   },
   "Redpoint": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.redpoint.com/feed/"
   },
   "First_Round_Review": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://review.firstround.com/feed.xml"
   },
   "NFX": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.nfx.com/feed"
@@ -82,7 +82,7 @@
     "url": "https://www.madrona.com/feed/"
   },
   "Felicis": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.felicis.com/feed/"
@@ -94,7 +94,7 @@
     "url": "https://blog.langchain.dev/rss/"
   },
   "Conviction": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.conviction.com/feed"
@@ -105,7 +105,7 @@
     "url": "https://openai.com/blog/rss.xml"
   },
   "Anthropic": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.anthropic.com/feed.xml"
@@ -157,7 +157,7 @@
     "url": "https://www.technologyreview.com/feed/"
   },
   "Wired_AI": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"
@@ -199,7 +199,7 @@
     "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"
   },
   "GCP_BigQuery": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/bigquery/rss/"
@@ -210,7 +210,7 @@
     "url": "https://cloudblog.withgoogle.com/products/data-analytics/rss/"
   },
   "GCP_Looker": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/looker/rss/"
@@ -221,7 +221,7 @@
     "url": "https://cloudblog.withgoogle.com/products/databases/rss/"
   },
   "GCP_AlloyDB": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/alloydb/rss/"
@@ -232,7 +232,7 @@
     "url": "https://cloudblog.withgoogle.com/products/spanner/rss/"
   },
   "GCP_Cloud_SQL": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://cloudblog.withgoogle.com/products/cloud-sql/rss/"
@@ -283,13 +283,13 @@
     "url": "https://karpathy.github.io/feed.xml"
   },
   "Rubrik_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.rubrik.com/blog/feed"
   },
   "Okta_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.okta.com/blog/feed/"
@@ -345,13 +345,13 @@
     "url": "https://www.databricks.com/feed"
   },
   "Snowflake_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.snowflake.com/blog/feed/"
   },
   "Meta_AI_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://ai.meta.com/blog/rss/"
@@ -362,7 +362,7 @@
     "url": "https://engineering.fb.com/feed/"
   },
   "Atlan_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://atlan.com/feed/"
@@ -373,7 +373,7 @@
     "url": "https://engineering.grab.com/feed.xml"
   },
   "OGP_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-22",
     "last_error": "ValueError",
     "url": "https://www.open.gov.sg/index.xml"
