@@ -33,8 +33,9 @@
     "url": "https://www.sequoiacap.com/feed/"
   },
   "YL_Ventures": {
-    "failures": 0,
-    "last_success": "2026-11-24",
+    "failures": 1,
+    "last_failure": "2026-11-24",
+    "last_error": "ValueError",
     "url": "https://ylventures.com/feed/"
   },
   "Team8": {
@@ -87,7 +88,7 @@
     "url": "https://www.felicis.com/feed/"
   },
   "LangChain_Blog": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-24",
     "last_error": "ValueError",
     "url": "https://blog.langchain.dev/rss/"
@@ -115,7 +116,7 @@
     "url": "https://deepmind.google/blog/rss.xml"
   },
   "Microsoft_AI": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-24",
     "last_error": "ValueError",
     "url": "https://blogs.microsoft.com/ai/feed/"
@@ -162,7 +163,7 @@
     "url": "https://www.wired.com/feed/tag/artificial-intelligence/rss"
   },
   "VentureBeat_AI": {
-    "failures": 1,
+    "failures": 2,
     "last_failure": "2026-11-24",
     "last_error": "ValueError",
     "url": "https://venturebeat.com/category/ai/feed/"
